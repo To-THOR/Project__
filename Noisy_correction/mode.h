@@ -12,5 +12,7 @@
 void mode_update(void);
 void mode_raise_error(void);
 int mode_get(void);
+void mode_wait(void);
+void mode_signal(void);
 
 #endif /* MODE_H_ */
