@@ -16,6 +16,14 @@
 #include <communications.h>
 #include <arm_math.h>
 
+// moteur 360°
+#include <p30F6014A.h>
+#include <e_motors.h>
+#include <motor_led/e_epuck_ports.h>
+#include <motor_led/e_init_port.h>
+#include <motor_led/advance_one_timer/e_motors.h>
+#include <motor_led/advance_one_timer/e_agenda.h>
+
 //uncomment to send the FFTs results from the real microphones
 #define SEND_FROM_MIC
 
@@ -51,8 +59,28 @@ static void timer12_start(void){
 }
 
 int main(void)
-{
+{e_init_port();
+	e_init_motors();
+	//{This function manage the left motor speed by changing the MOTOR1 phases.
+	//The changing phases frequency (=> speed) is controled by the agenda
+	//param motor_speed from -1000 to 1000 give the motor speed in steps/s,
+	//positive value to go forward and negative to go backward.}
+	e_set_speed(-500, 500);
+	//e_set_speed(int linear_speed, int angular_speed)
+	e_start_agendas_processing();
+	// { reset Timer2 CONtrol register
+	// precsaler = 1
+	// clear timer 2
+	// interrupt every 0.1 ms with 64 prescaler
+	// clear interrupt flag
+	// set interrupt enable bit
+	// start Timer2 }
+}
+while(1) {}
+}
 
+
+/*
     halInit();
     chSysInit();
     mpu_init();
@@ -80,6 +108,7 @@ int main(void)
 #endif  /* SEND_FROM_MIC */
 
     /* Infinite loop. */
+	/*
     while (1) {
 #ifdef SEND_FROM_MIC
         //waits until a result must be sent to the computer
@@ -90,7 +119,7 @@ int main(void)
         SendFloatToComputer((BaseSequentialStream *) &SD3, send_tab, FFT_SIZE);
 #else
         SendFloatToComputer((BaseSequentialStream *) &SD3, get_audio_buffer_ptr(LEFT_OUTPUT), FFT_SIZE);
-#endif  /* DOUBLE_BUFFERING */
+#endif  /* DOUBLE_BUFFERING */ /*
 #else
         //time measurement variables
         volatile uint16_t time_fft = 0;
@@ -105,7 +134,7 @@ int main(void)
             /*
             *   Optimized FFT
             */
-            
+            /*
             chSysLock();
             //reset the timer counter
             GPTD12.tim->CNT = 0;
@@ -147,7 +176,7 @@ int main(void)
 
             /*
             *   End of non optimized FFT
-            */
+            
 
             chSysLock();
             //reset the timer counter
@@ -162,7 +191,7 @@ int main(void)
             //chprintf((BaseSequentialStream *) &SDU1, "time fft = %d us, time magnitude = %d us\n",time_fft, time_mag);
 
         }
-#endif  /* SEND_FROM_MIC */
+#endif  /* SEND_FROM_MIC 
     }
 }
 
@@ -173,3 +202,4 @@ void __stack_chk_fail(void)
 {
     chSysHalt("Stack smashing detected");
 }
+*/
