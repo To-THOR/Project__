@@ -50,7 +50,7 @@ void mode_update(void){
 	}
 	case MODE_CHECK:{
 		if(static_error == ERROR){
-			static_mode = MODE_IDLE;
+			static_mode  = MODE_IDLE;
 			static_error = NO_ERROR;
 		}
 		else static_mode = MODE_DRAW;

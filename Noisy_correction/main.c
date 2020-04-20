@@ -15,6 +15,23 @@
 #include <communications.h>
 #include <arm_math.h>
 #include <mode.h>
+#include <VL53L0X.h>
+
+#define THREAD_OBSTACLE_DETECTION_SIZE 256
+#define OBSTACLE_DETECTION_PRIO		NORMALPRIO + 1
+
+static THD_WORKING_AREA(waObstacleDetection, THREAD_OBSTACLE_DETECTION_SIZE);
+static THD_FUNCTION(ObstacleDetectionThd, arg) {
+	while(1){
+		if(mode_get() == MODE_CHECK){						///ANNULER LE THREAD OU BIEN LAISSER CE IF?
+			if(VL53L0X_get_dist_mm() <= figure_size_get()){
+				mode_raise_error();
+			}
+			mode_update();
+		}
+		chThdSleepMilliseconds(200);
+	}
+}
 
 
 int main(void)
@@ -23,6 +40,9 @@ int main(void)
     halInit();
     chSysInit();
     mpu_init();
+
+    (void)chThdCreateStatic(waObstacleDetection, sizeof(waObstacleDetection),
+    OBSTACLE_DETECTION_PRIO, ObstacleDetectionThd, NULL);
 
     //inits the motors
     motors_init();
