@@ -8,14 +8,15 @@
 #include <usbcfg.h>
 #include <main.h>
 #include <chprintf.h>
-#include <motors.h>
 #include <audio/microphone.h>
 #include <audio_processing.h>
 #include <fft.h>
 #include <communications.h>
 #include <arm_math.h>
 #include <mode.h>
-#include <VL53L0X.h>
+#include <figure.h>
+#include <displacement.h>
+#include <sensors/VL53L0X/VL53L0X.h>
 
 #define THREAD_OBSTACLE_DETECTION_SIZE 256
 #define OBSTACLE_DETECTION_PRIO		NORMALPRIO + 1
@@ -44,8 +45,8 @@ int main(void)
     (void)chThdCreateStatic(waObstacleDetection, sizeof(waObstacleDetection),
     OBSTACLE_DETECTION_PRIO, ObstacleDetectionThd, NULL);
 
-    //inits the motors
-    motors_init();
+    //initialize the displacement threads
+    displacement_start();
 
     //starts the microphones processing thread.
     //it calls the callback given in parameter when samples are ready

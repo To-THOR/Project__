@@ -60,7 +60,7 @@ int figure_get(void){
  * Return:		-figure_size_static
  *
  * */
-int figure_size_get(int figure_size){
+int figure_size_get(void){
 	return figure_size_static;
 }
 
@@ -71,7 +71,7 @@ int figure_size_get(int figure_size){
  * Return:		-void
  *
  * */
-int figure_size_set(void){
+void figure_size_set(int figure_size){
 	if(figure_size <= FIGURE_SIZE_MAX && figure_size >= FIGURE_SIZE_1){
 			figure_size_static = figure_size;
 		}

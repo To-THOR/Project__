@@ -17,7 +17,7 @@
 
 void figure_set(int figure_type);
 int figure_get(void);
-int figure_size_get(int figure_size);
-int figure_size_set(void);
+int figure_size_get(void);
+void figure_size_set(int figure_size);
 
 #endif /* FIGURE_H_ */
