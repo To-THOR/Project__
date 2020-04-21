@@ -30,6 +30,7 @@ static THD_FUNCTION(ObstacleDetectionThd, arg) {
 			}
 			mode_update();
 		}
+		//chThdExit()
 		chThdSleepMilliseconds(200);
 	}
 }

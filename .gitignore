@@ -1,7 +1,7 @@
 #added by Victor
-.lst
-.list
-build
+*.lst
+*.list
+Noisy_correction/build
 
 # Prerequisites
 *.d

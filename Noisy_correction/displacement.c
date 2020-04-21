@@ -15,8 +15,9 @@ void distance_update(void);
 #define INITIAL_SPEED_LEFT			0
 #define INITIAL_SPEED_RIGHT			0
 #define DISTANCE_THD_TIME			100
-#define VELOCITY_CONSTANT_FACTOR	(float)6.5e-4 	// = wheels radius[dm] / (2*nb of steps for one complete rotation)
-													// = 1.3/(2*1000) [100um/msec]
+#define VELOCITY_CONSTANT_FACTOR	(float)6.5e-2 	// = (wheels radius[dm]*100) / (2*nb of steps for one complete rotation)
+													// = (1.3*100)/(2*1000) [100um/msec]
+#define DISTANCE_FACTOR				(int)(VELOCITY_CONSTANT_FACTOR * DISTANCE_THD_TIME) //D = V*dT
 
 // --------------------------- VARIABLES ---------------------------
 
@@ -33,6 +34,7 @@ static	uint32_t static_distance	= INITIAL_DISTANCE;
  * Name: 		-static_speed_left
  * Description:	-speed of the left wheel of the robot [step/sec]
  * 				-CAUTION: the maximum angle is 1100 step/sec
+ * 				-CAUTION: the velocity must have zero dozens and units (only 100,200,300,400,... are acceptable)
  *
  * */
 static	uint16_t static_speed_left 	= INITIAL_SPEED_LEFT;
@@ -41,6 +43,7 @@ static	uint16_t static_speed_left 	= INITIAL_SPEED_LEFT;
  * Name: 		-static_speed_right
  * Description:	-speed of the right wheel of the robot [step/sec]
  * 				-CAUTION: the maximum angle is 1100 step/sec
+ * 				-CAUTION: the velocity must have zero dozens and units (only 100,200,300,400,... are acceptable)
  *
  * */
 static	uint16_t static_speed_right = INITIAL_SPEED_RIGHT;
@@ -86,6 +89,5 @@ void displacement_start(void){
  *
  * */
 void distance_update(void){
-	static_distance += 	(float)DISTANCE_THD_TIME * VELOCITY_CONSTANT_FACTOR * \
-						(float)(static_speed_left + static_speed_right);
+	static_distance +=	DISTANCE_FACTOR * (int)((static_speed_left + static_speed_right)/(int)100);
 }
