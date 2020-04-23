@@ -72,7 +72,7 @@ int figure_size_get(void){
  *
  * */
 void figure_size_set(int figure_size){
-	if(figure_size <= FIGURE_SIZE_MAX && figure_size >= FIGURE_SIZE_1){
+	if(figure_size == FIGURE_NO_SIZE ||figure_size == FIGURE_SIZE_1 || figure_size == FIGURE_SIZE_2 || figure_size == FIGURE_SIZE_MAX){
 			figure_size_static = figure_size;
 		}
 		else{
