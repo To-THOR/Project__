@@ -33,10 +33,7 @@ static THD_FUNCTION(SEQThd, arg)
 		// Working principle:
 		// microphone is activated, if a sound is detected its frequency refers to a figure (form and dimensions)
 		{
-			mic_start(&processAudioData);
-			//starts the microphones processing thread.
-		    //it calls the callback given in parameter when samples are ready
-			// sound remote will then set the figure
+			// mic_start => processAudioData => sound_remote
 			if (figure_get()>0)
 				mode_update();
 			chThdSleepMilliseconds(PERIOD_MODE_1);
@@ -61,6 +58,7 @@ static THD_FUNCTION(SEQThd, arg)
 		}
 
 		while (mode_get()== MODE_DRAW)
+		// Working principle:
 		{
 			;
 		}

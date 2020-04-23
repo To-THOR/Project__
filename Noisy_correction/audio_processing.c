@@ -13,7 +13,7 @@
 #include <figure.h>
 
 //semaphore
-static BSEMAPHORE_DECL(sendToComputer_sem, TRUE);
+//static BSEMAPHORE_DECL(sendToComputer_sem, TRUE);
 
 //2 times FFT_SIZE because these arrays contain complex numbers (real + imaginary)
 static float micLeft_cmplx_input[2 * FFT_SIZE];
@@ -96,71 +96,73 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 
 	static uint16_t nb_samples = 0;
 	static uint8_t mustSend = 0;
+	if(mode_get()== MODE_IDLE) //sound processing needs to be done only when in MODE_IDLE
+	{
+		//loop to fill the buffers
+		for(uint16_t i = 0 ; i < num_samples ; i+=4){
+			//construct an array of complex numbers. Put 0 to the imaginary part
+			micRight_cmplx_input[nb_samples] = (float)data[i + MIC_RIGHT];
+			micLeft_cmplx_input[nb_samples] = (float)data[i + MIC_LEFT];
+			micBack_cmplx_input[nb_samples] = (float)data[i + MIC_BACK];
+			micFront_cmplx_input[nb_samples] = (float)data[i + MIC_FRONT];
 
-	//loop to fill the buffers
-	for(uint16_t i = 0 ; i < num_samples ; i+=4){
-		//construct an array of complex numbers. Put 0 to the imaginary part
-		micRight_cmplx_input[nb_samples] = (float)data[i + MIC_RIGHT];
-		micLeft_cmplx_input[nb_samples] = (float)data[i + MIC_LEFT];
-		micBack_cmplx_input[nb_samples] = (float)data[i + MIC_BACK];
-		micFront_cmplx_input[nb_samples] = (float)data[i + MIC_FRONT];
+			nb_samples++;
 
-		nb_samples++;
+			micRight_cmplx_input[nb_samples] = 0;
+			micLeft_cmplx_input[nb_samples] = 0;
+			micBack_cmplx_input[nb_samples] = 0;
+			micFront_cmplx_input[nb_samples] = 0;
 
-		micRight_cmplx_input[nb_samples] = 0;
-		micLeft_cmplx_input[nb_samples] = 0;
-		micBack_cmplx_input[nb_samples] = 0;
-		micFront_cmplx_input[nb_samples] = 0;
+			nb_samples++;
 
-		nb_samples++;
+			//stop when buffer is full
+			if(nb_samples >= (2 * FFT_SIZE)){
+				break;
+			}
+		}
 
-		//stop when buffer is full
 		if(nb_samples >= (2 * FFT_SIZE)){
-			break;
+			/*	FFT proccessing
+			*
+			*	This FFT function stores the results in the input buffer given.
+			*	This is an "In Place" function.
+			*/
+
+			doFFT_optimized(FFT_SIZE, micRight_cmplx_input);
+			doFFT_optimized(FFT_SIZE, micLeft_cmplx_input);
+			doFFT_optimized(FFT_SIZE, micFront_cmplx_input);
+			doFFT_optimized(FFT_SIZE, micBack_cmplx_input);
+
+			/*	Magnitude processing
+			*
+			*	Computes the magnitude of the complex numbers and
+			*	stores them in a buffer of FFT_SIZE because it only contains
+			*	real numbers.
+			*
+			*/
+			arm_cmplx_mag_f32(micRight_cmplx_input, micRight_output, FFT_SIZE);
+			arm_cmplx_mag_f32(micLeft_cmplx_input, micLeft_output, FFT_SIZE);
+			arm_cmplx_mag_f32(micFront_cmplx_input, micFront_output, FFT_SIZE);
+			arm_cmplx_mag_f32(micBack_cmplx_input, micBack_output, FFT_SIZE);
+
+			//sends only one FFT result over 10 for 1 mic to not flood the computer
+			//sends to UART3
+			/*if(mustSend > 8){
+				//signals to send the result to the computer
+				chBSemSignal(&sendToComputer_sem);
+				mustSend = 0;
+			} */
+			nb_samples = 0;
+			mustSend++;
+
+			sound_remote(micLeft_output);
 		}
-	}
-
-	if(nb_samples >= (2 * FFT_SIZE)){
-		/*	FFT proccessing
-		*
-		*	This FFT function stores the results in the input buffer given.
-		*	This is an "In Place" function. 
-		*/
-
-		doFFT_optimized(FFT_SIZE, micRight_cmplx_input);
-		doFFT_optimized(FFT_SIZE, micLeft_cmplx_input);
-		doFFT_optimized(FFT_SIZE, micFront_cmplx_input);
-		doFFT_optimized(FFT_SIZE, micBack_cmplx_input);
-
-		/*	Magnitude processing
-		*
-		*	Computes the magnitude of the complex numbers and
-		*	stores them in a buffer of FFT_SIZE because it only contains
-		*	real numbers.
-		*
-		*/
-		arm_cmplx_mag_f32(micRight_cmplx_input, micRight_output, FFT_SIZE);
-		arm_cmplx_mag_f32(micLeft_cmplx_input, micLeft_output, FFT_SIZE);
-		arm_cmplx_mag_f32(micFront_cmplx_input, micFront_output, FFT_SIZE);
-		arm_cmplx_mag_f32(micBack_cmplx_input, micBack_output, FFT_SIZE);
-
-		//sends only one FFT result over 10 for 1 mic to not flood the computer
-		//sends to UART3
-		if(mustSend > 8){
-			//signals to send the result to the computer
-			chBSemSignal(&sendToComputer_sem);
-			mustSend = 0;
-		}
-		nb_samples = 0;
-		mustSend++;
-
-		sound_remote(micLeft_output);
 	}
 }
 
-void wait_send_to_computer(void){
+/*void wait_send_to_computer(void){
 	chBSemWait(&sendToComputer_sem);
-}
+} */
 
 float* get_audio_buffer_ptr(BUFFER_NAME_t name){
 	if(name == LEFT_CMPLX_INPUT){
