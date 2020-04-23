@@ -29,11 +29,11 @@ static THD_FUNCTION(SEQThd, arg)
 		// Working principle:
 		// microphone is activated, if a sound is detected its frequency refers to a figure (form and dimensions)
 		{
-			;
+			mode_update();
 		}
 
 		i = 0;
-		while (mode_get()== MODE_CHECK)
+		while (mode_get() == MODE_CHECK)
 		// Working principle:
 		// robot spins 360° around itself until distance measurements are done
 		// If the distance given by sensor VL53L0X is bigger then the size of the wanted figure: go to mode 3
@@ -51,7 +51,7 @@ static THD_FUNCTION(SEQThd, arg)
 		}
 		while (mode_get()== MODE_DRAW)
 		{
-			;
+			mode_update();
 		}
 	}
 }
