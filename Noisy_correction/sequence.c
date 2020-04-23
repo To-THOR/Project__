@@ -29,6 +29,7 @@ static THD_FUNCTION(SEQThd, arg)
 		// Working principle:
 		// microphone is activated, if a sound is detected its frequency refers to a figure (form and dimensions)
 		{
+			figure_size_set(FIGURE_SIZE_MAX);
 			mode_update();
 		}
 
@@ -39,11 +40,14 @@ static THD_FUNCTION(SEQThd, arg)
 		// If the distance given by sensor VL53L0X is bigger then the size of the wanted figure: go to mode 3
 		// If the distance is smaller: error: go to mode 1
 		{
-			right_motor_set_speed(SPEED);
-			left_motor_set_speed(-SPEED);
+			right_motor_set_speed(0);
+			left_motor_set_speed(0);
 			i= i+1; // incrementation of number of measurements counter
-			if((int) VL53L0X_get_dist_mm() <= figure_size_get()) //distance is initially an uint16_t
+			if((int) VL53L0X_get_dist_mm() <= figure_size_get()){ //distance is initially an uint16_t
 				mode_raise_error();
+				right_motor_set_speed(SPEED);
+				left_motor_set_speed(-SPEED);
+			}
 			if(i == 29) // number of needed measurements, dep on chosen frequency
 				mode_update();
 

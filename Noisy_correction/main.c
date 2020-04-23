@@ -26,6 +26,8 @@ int main(void)
     chSysInit();
     mpu_init();
 
+    //initialize the distance sensor
+    VL53L0X_start();
     //initialize the displacement threads
     displacement_start();
     //initialize the sequence thread
