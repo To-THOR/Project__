@@ -18,6 +18,7 @@
 #include <displacement.h>
 #include <sensors/VL53L0X/VL53L0X.h>
 
+/*
 #define THREAD_OBSTACLE_DETECTION_SIZE 256
 #define OBSTACLE_DETECTION_PRIO		NORMALPRIO + 1
 
@@ -34,7 +35,7 @@ static THD_FUNCTION(ObstacleDetectionThd, arg) {
 		chThdSleepMilliseconds(200);
 	}
 }
-
+*/
 
 int main(void)
 {
