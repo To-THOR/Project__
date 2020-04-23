@@ -44,8 +44,8 @@ int main(void)
     chSysInit();
     mpu_init();
 
-    (void)chThdCreateStatic(waObstacleDetection, sizeof(waObstacleDetection),
-    OBSTACLE_DETECTION_PRIO, ObstacleDetectionThd, NULL);
+    //(void)chThdCreateStatic(waObstacleDetection, sizeof(waObstacleDetection),
+    //OBSTACLE_DETECTION_PRIO, ObstacleDetectionThd, NULL);
 
     //initialize the displacement threads
     displacement_start();
