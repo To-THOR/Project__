@@ -77,8 +77,8 @@ static THD_FUNCTION(DistanceThd, arg) {
  * */
 void displacement_start(void){
 	motors_init();
-	(void)chThdCreateStatic(waDistanceThd, sizeof(waDistanceThd),
-	    DISTANCE_THD_PRIO, DistanceThd, NULL);
+	//(void)chThdCreateStatic(waDistanceThd, sizeof(waDistanceThd),
+	   // DISTANCE_THD_PRIO, DistanceThd, NULL);
 }
 
 /*

@@ -26,10 +26,10 @@ int main(void)
     chSysInit();
     mpu_init();
 
-    //initialize the sequence thread
-    sequence_sequthd_init();
     //initialize the displacement threads
     displacement_start();
+    //initialize the sequence thread
+    sequence_sequthd_init();
 
     //starts the microphones processing thread.
     //it calls the callback given in parameter when samples are ready
