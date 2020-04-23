@@ -14,22 +14,32 @@
 
 
 #define THREAD_SEQ_SIZE 256
-#define 				SPEED 500
+#define SPEED 			500
 #define SEQU_THD_PRIO 	NORMALPRIO+1
+#define PERIOD_MODE_1	100
 #define PERIOD_MODE_2	200 //to be modified according to the motors speed
+
+
 
 
 static THD_WORKING_AREA(waSEQUENCE, THREAD_SEQ_SIZE);
 static THD_FUNCTION(SEQThd, arg)
 {
-	while(1){
+	while(1)
+	{
 
 		static int i = 0;
 		while (mode_get()== MODE_IDLE)
 		// Working principle:
 		// microphone is activated, if a sound is detected its frequency refers to a figure (form and dimensions)
 		{
-			;
+			mic_start(&processAudioData);
+			//starts the microphones processing thread.
+		    //it calls the callback given in parameter when samples are ready
+			// sound remote will then set the figure
+			if (figure_get()>0)
+				mode_update();
+			chThdSleepMilliseconds(PERIOD_MODE_1);
 		}
 
 		i = 0;
@@ -49,6 +59,7 @@ static THD_FUNCTION(SEQThd, arg)
 
 			chThdSleepMilliseconds(PERIOD_MODE_2);
 		}
+
 		while (mode_get()== MODE_DRAW)
 		{
 			;
