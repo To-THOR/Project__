@@ -28,7 +28,7 @@ int main(void)
     mpu_init();
 
     //initialize the distance sensor
-    VL53L0X_start();
+    //VL53L0X_start();
 
     //initialize the displacement threads
     displacement_start();
@@ -36,13 +36,14 @@ int main(void)
     //starts the microphones processing thread.
     //it calls the callback given in parameter when samples are ready
     // sound remote will then set the figure when in MODE_IDLE
-    mic_start(&processAudioData);
+    //mic_start(&processAudioData);
 
-    sequence_sequthd_init();
+    //sequence_sequthd_init();
 
     /* Infinite loop. */
     while (1) {
-    	;
+    	left_motor_set_speed(200);
+    	right_motor_set_speed(400);
     }
 }
 
