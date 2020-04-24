@@ -27,7 +27,6 @@ int main(void)
     chSysInit();
     mpu_init();
 
-    sequence_sequthd_init();
 
     //initialize the displacement threads
     displacement_start();
@@ -37,10 +36,11 @@ int main(void)
     // sound remote will then set the figure when in MODE_IDLE
     mic_start(&processAudioData);
 
+    sequence_sequthd_init();
+
     /* Infinite loop. */
     while (1) {
-    	mode_wait();
-    	mode_update();
+    	;
     }
 }
 
