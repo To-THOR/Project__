@@ -14,11 +14,13 @@
 
 
 #define THREAD_SEQ_SIZE 256
-#define SPEED 			500
+#define NB_MEASUREMENTS  29
+#define NORMAL_SPEED 	500
+#define SPEED_NULL 		  0
 #define SEQU_THD_PRIO 	NORMALPRIO+1
 #define PERIOD_MODE_1	100
 #define PERIOD_MODE_2	200 //to be modified according to the motors speed
-
+#define CONVERT			10  //to convert units from [0.1mm] to [mm]
 
 
 
@@ -34,7 +36,7 @@ static THD_FUNCTION(SEQThd, arg)
 		// microphone is activated, if a sound is detected its frequency refers to a figure (form and dimensions)
 		{
 			// mic_start => processAudioData => sound_remote
-			if (figure_get()>0)
+			if (figure_get()> FIGURE_NONE)
 				mode_update();
 			chThdSleepMilliseconds(PERIOD_MODE_1);
 		}
@@ -46,21 +48,55 @@ static THD_FUNCTION(SEQThd, arg)
 		// If the distance given by sensor VL53L0X is bigger then the size of the wanted figure: go to mode 3
 		// If the distance is smaller: error: go to mode 1
 		{
-			right_motor_set_speed(SPEED);
-			left_motor_set_speed(-SPEED);
+			void displacement_rotation(int32_t speed)
+			{
+				right_motor_set_speed(speed);
+				left_motor_set_speed(-speed);
+			}
+
+			displacement_rotation(NORMAL_SPEED);
 			i= i+1; // incrementation of number of measurements counter
 			if((int) VL53L0X_get_dist_mm() <= figure_size_get()) //distance is initially an uint16_t
 				mode_raise_error();
-			if(i == 29) // number of needed measurements, dep on chosen frequency
+			if(i == NB_MEASUREMENTS) // number of needed measurements, dep on chosen frequency
 				mode_update();
 
 			chThdSleepMilliseconds(PERIOD_MODE_2);
 		}
 
-		while (mode_get()== MODE_DRAW)
+		if (mode_get()== MODE_DRAW)
 		// Working principle:
+		// robot moves vertically with a distance = radius of the circumscribed circle for the start position
+		// robot moves according to  the type of the chosen figure
 		{
-			;
+
+			void displacement_starting_point(void)
+			{
+				displacement_straight_speed_set(NORMAL_SPEED);
+				if (CONVERT*displacement_distance_get()==figure_size_get())
+				{
+				displacement_straight_speed_set(SPEED_NULL);
+				// demi tour pour s'orienter sur la trajectoire
+				}
+			}
+			// robot draws figure
+			if (figure_get()== FIGURE_CIRCLE)
+			{
+				while(1)
+				{
+					displacement_starting_point(void);
+					//fct pour vitesse dans displacement
+				}
+			}
+			/*if (figure_get()== FIGURE_SQUARE)
+			  	 while(1){
+			  	  displacement_starting_point(void);
+			  	  }
+			if (figure_get()== FIGURE_TRIANGLE)
+				while(1){
+				displacement_starting_point(void);
+				}
+			*/
 		}
 	}
 }
