@@ -13,10 +13,8 @@
 #define RESET_RIGHT_POS_MOTOR		0
 #define INITIAL_SPEED_LEFT			0
 #define INITIAL_SPEED_RIGHT			0
-#define NO_SPEED					0
-#define NORMAL_SPEED				700 		//CAUTION: speed must have zero dozens and units (e.g. 100, 200, ...)
 #define WHEEL_PERIMETER				1300 									//[100um]
-#define	WHEEL_GAP					53										//[mm]
+#define	WHEEL_GAP					53										//[mm] distance between wheels
 #define DISTANCE_FACTOR				(int)(WHEEL_PERIMETER/100)				//dist = (stepL+stepR)/(2*1000)   * perimeter
 																			//dist = (stepL+stepR)/20 * perimeter/100
 #define ALPHA_FACTOR_1				(float)(2*FIGURE_SIZE_1/WHEEL_GAP)
@@ -99,7 +97,7 @@ void displacement_straight_speed_set(int32_t speed){
 		right_motor_set_speed(NO_SPEED_RIGHT);
 	}
 }
-
+/*
 void displacement_starting_point(void)
 {
 	displacement_straight_speed_set(NORMAL_SPEED);
@@ -109,6 +107,7 @@ void displacement_starting_point(void)
 		// demi tour pour s'orienter sur la trajectoire
 	}
 }
+*/
 
 void displacement_circle_speed(void){
 	switch(figure_get_size()){
