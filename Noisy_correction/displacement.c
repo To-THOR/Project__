@@ -4,6 +4,7 @@
 #include <mode.h>
 #include <motors.h>
 #include <displacement.h>
+#include <figure.h>
 
 
 // --------------------------- CONSTANTS ---------------------------
@@ -12,9 +13,21 @@
 #define RESET_RIGHT_POS_MOTOR		0
 #define INITIAL_SPEED_LEFT			0
 #define INITIAL_SPEED_RIGHT			0
-#define WHEEL_PERIMETER				1300 						//[100um]
-#define DISTANCE_FACTOR				(int)(WHEEL_PERIMETER/100)	//dist = (stepL+stepR)/(2*1000)   * perimeter
-																//dist = (stepL+stepR)/20 * perimeter/100
+#define NO_SPEED					0
+#define NORMAL_SPEED				700 		//CAUTION: speed must have zero dozens and units (e.g. 100, 200, ...)
+#define WHEEL_PERIMETER				1300 									//[100um]
+#define	WHEEL_GAP					53										//[mm]
+#define DISTANCE_FACTOR				(int)(WHEEL_PERIMETER/100)				//dist = (stepL+stepR)/(2*1000)   * perimeter
+																			//dist = (stepL+stepR)/20 * perimeter/100
+#define ALPHA_FACTOR_1				(float)(2*FIGURE_SIZE_1/WHEEL_GAP)
+#define ALPHA_FACTOR_2				(float)(2*FIGURE_SIZE_2/WHEEL_GAP)
+#define ALPHA_FACTOR_MAX			(float)(2*FIGURE_SIZE_MAX/WHEEL_GAP)
+#define	CIRCLE_SPEED_FACTOR_1		(int)(100*(ALPHA_FACTOR_1+1)/(ALPHA_FACTOR_1-1))
+#define	CIRCLE_SPEED_FACTOR_2		(int)(100*(ALPHA_FACTOR_2+1)/(ALPHA_FACTOR_2-1))
+#define	CIRCLE_SPEED_FACTOR_MAX		(int)(100*(ALPHA_FACTOR_MAX+1)/(ALPHA_FACTOR_MAX-1))
+#define	CIRCLE_SPEED_1				(int32_t)(NORMAL_SPEED*CIRCLE_SPEED_FACTOR_1)
+#define	CIRCLE_SPEED_2				(int32_t)(NORMAL_SPEED*CIRCLE_SPEED_FACTOR_2)
+#define	CIRCLE_SPEED_MAX			(int32_t)(NORMAL_SPEED*CIRCLE_SPEED_FACTOR_MAX)
 
 // --------------------------- VARIABLES ---------------------------
 
@@ -37,6 +50,10 @@ static	uint16_t static_speed_left 	= INITIAL_SPEED_LEFT;
  * */
 static	uint16_t static_speed_right = INITIAL_SPEED_RIGHT;
 
+
+
+void displacement_circle_speed(void);
+void displacement_straight_speed_set(int32_t speed);
 
 // --------------------------- EXTERNAL FUNCTIONS ---------------------------
 
@@ -68,4 +85,46 @@ uint16_t displacement_distance_get(void){
 void displacement_distance_reset(void){
 	left_motor_set_pos(RESET_LEFT_POS_MOTOR);
 	right_motor_set_pos(RESET_RIGHT_POS_MOTOR);
+}
+
+
+void displacement_straight_speed_set(int32_t speed){
+	if(speed == NORMAL_SPEED){
+		left_motor_set_speed(NORMAL_SPEED);
+		right_motor_set_speed(NORMAL_SPEED);
+	}
+	else{
+		left_motor_set_speed(NO_SPEED_LEFT);
+		right_motor_set_speed(NO_SPEED_RIGHT);
+	}
+}
+
+
+void displacement_circle_speed(void){
+	switch(figure_get_size()){
+	case FIGURE_NO_SIZE:{
+		right_motor_set_speed(NO_SPEED);
+		left_motor_set_speed(NO_SPEED);
+		break;
+	}
+	case FIGURE_SIZE_1:{
+		left_motor_set_speed(NORMAL_SPEED);
+		right_motor_set_speed(CIRCLE_SPEED_1);
+		break;
+	}
+	case FIGURE_SIZE_2:{
+		left_motor_set_speed(NORMAL_SPEED);
+		right_motor_set_speed(CIRCLE_SPEED_2);
+		break;
+	}
+	case FIGURE_SIZE_MAX:{
+		left_motor_set_speed(NORMAL_SPEED);
+		right_motor_set_speed(CIRCLE_SPEED_MAX);
+		break;
+	}
+	default:{
+		left_motor_set_speed(NO_SPEED);
+		right_motor_set_speed(NO_SPEED);
+	}
+}
 }
