@@ -30,9 +30,9 @@ static int figure_size_static = FIGURE_NO_SIZE;
  *
  * */
 void figure_set(int figure_type){
-	if(figure_type <= FIGURE_CIRCLE && figure_type >= FIGURE_SQUARE){  	//CAREFUL: the list of figures
-																		//have to begin and end with
-																		//FIGURE_SQUARE and FIGURE_CIRCLE
+	if(firgure_type == FIGURE_NONE || figure_type == FIGURE_CIRCLE \
+			|| figure_type == FIGURE_TRIANGLE || figure_type == FIGURE_SQUARE){	//Checking the validity of the
+																				//parameter
 		figure_static = figure_type;
 	}
 	else{
@@ -72,7 +72,7 @@ int figure_size_get(void){
  *
  * */
 void figure_size_set(int figure_size){
-	if(figure_size <= FIGURE_SIZE_MAX && figure_size >= FIGURE_SIZE_1){
+	if(figure_size == FIGURE_NO_SIZE ||figure_size == FIGURE_SIZE_1 || figure_size == FIGURE_SIZE_2 || figure_size == FIGURE_SIZE_MAX){
 			figure_size_static = figure_size;
 		}
 		else{

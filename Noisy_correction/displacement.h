@@ -3,6 +3,8 @@
 
 // --------------------------- FUNCTIONS ---------------------------
 
-void displacement_start(void);
+void 		displacement_start(void);
+uint16_t 	displacement_distance_get(void);
+void displacement_distance_reset(void);
 
 #endif /* DISPLACEMENT_H_ */
