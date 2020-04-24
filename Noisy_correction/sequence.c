@@ -48,12 +48,6 @@ static THD_FUNCTION(SEQThd, arg)
 		// If the distance given by sensor VL53L0X is bigger then the size of the wanted figure: go to mode 3
 		// If the distance is smaller: error: go to mode 1
 		{
-			void displacement_rotation(int32_t speed)
-			{
-				right_motor_set_speed(speed);
-				left_motor_set_speed(-speed);
-			}
-
 			displacement_rotation(NORMAL_SPEED);
 			i= i+1; // incrementation of number of measurements counter
 			if((int) VL53L0X_get_dist_mm() <= figure_size_get()) //distance is initially an uint16_t
@@ -69,16 +63,6 @@ static THD_FUNCTION(SEQThd, arg)
 		// robot moves vertically with a distance = radius of the circumscribed circle for the start position
 		// robot moves according to  the type of the chosen figure
 		{
-
-			void displacement_starting_point(void)
-			{
-				displacement_straight_speed_set(NORMAL_SPEED);
-				if (CONVERT*displacement_distance_get()==figure_size_get())
-				{
-				displacement_straight_speed_set(SPEED_NULL);
-				// demi tour pour s'orienter sur la trajectoire
-				}
-			}
 			// robot draws figure
 			if (figure_get()== FIGURE_CIRCLE)
 			{

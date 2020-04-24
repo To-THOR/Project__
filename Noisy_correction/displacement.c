@@ -51,10 +51,6 @@ static	uint16_t static_speed_left 	= INITIAL_SPEED_LEFT;
 static	uint16_t static_speed_right = INITIAL_SPEED_RIGHT;
 
 
-
-void displacement_circle_speed(void);
-void displacement_straight_speed_set(int32_t speed);
-
 // --------------------------- EXTERNAL FUNCTIONS ---------------------------
 
 /*
@@ -87,6 +83,11 @@ void displacement_distance_reset(void){
 	right_motor_set_pos(RESET_RIGHT_POS_MOTOR);
 }
 
+void displacement_rotation(int32_t speed)
+{
+	right_motor_set_speed(speed);
+	left_motor_set_speed(-speed);
+}
 
 void displacement_straight_speed_set(int32_t speed){
 	if(speed == NORMAL_SPEED){
@@ -99,6 +100,15 @@ void displacement_straight_speed_set(int32_t speed){
 	}
 }
 
+void displacement_starting_point(void)
+{
+	displacement_straight_speed_set(NORMAL_SPEED);
+	if (CONVERT*displacement_distance_get()==figure_size_get())
+	{
+		displacement_straight_speed_set(SPEED_NULL);
+		// demi tour pour s'orienter sur la trajectoire
+	}
+}
 
 void displacement_circle_speed(void){
 	switch(figure_get_size()){
