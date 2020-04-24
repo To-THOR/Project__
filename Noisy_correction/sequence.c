@@ -34,7 +34,7 @@ static THD_FUNCTION(SEQThd, arg)
 		// microphone is activated, if a sound is detected its frequency refers to a figure (form and dimensions)
 		{
 			// mic_start => processAudioData => sound_remote
-			if (figure_get()>0)
+			if (figure_get() != FIGURE_NONE)
 				mode_update();
 			chThdSleepMilliseconds(PERIOD_MODE_1);
 		}
