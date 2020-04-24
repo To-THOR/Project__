@@ -31,7 +31,7 @@ static int static_mode 	= MODE_IDLE;
  * Description:	-error variable corresponding to the presence of an obstacle
  *
  * */
-static int static_error	= ERROR;
+static int static_error	= NO_ERROR;
 
 // --------------------------- FUNCTIONS ---------------------------
 

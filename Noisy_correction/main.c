@@ -18,22 +18,6 @@
 #include <displacement.h>
 #include <sensors/VL53L0X/VL53L0X.h>
 
-#define THREAD_OBSTACLE_DETECTION_SIZE 256
-#define OBSTACLE_DETECTION_PRIO		NORMALPRIO + 1
-
-static THD_WORKING_AREA(waObstacleDetection, THREAD_OBSTACLE_DETECTION_SIZE);
-static THD_FUNCTION(ObstacleDetectionThd, arg) {
-	while(1){
-		if(mode_get() == MODE_CHECK){						///ANNULER LE THREAD OU BIEN LAISSER CE IF?
-			if(VL53L0X_get_dist_mm() <= figure_size_get()){
-				mode_raise_error();
-			}
-			mode_update();
-		}
-		//chThdExit()
-		chThdSleepMilliseconds(200);
-	}
-}
 
 
 int main(void)
@@ -43,20 +27,22 @@ int main(void)
     chSysInit();
     mpu_init();
 
-    (void)chThdCreateStatic(waObstacleDetection, sizeof(waObstacleDetection),
-    OBSTACLE_DETECTION_PRIO, ObstacleDetectionThd, NULL);
+    //initialize the distance sensor
+    VL53L0X_start();
 
     //initialize the displacement threads
     displacement_start();
 
     //starts the microphones processing thread.
     //it calls the callback given in parameter when samples are ready
+    // sound remote will then set the figure when in MODE_IDLE
     mic_start(&processAudioData);
+
+    sequence_sequthd_init();
 
     /* Infinite loop. */
     while (1) {
-    	mode_wait();
-    	mode_update();
+    	;
     }
 }
 
