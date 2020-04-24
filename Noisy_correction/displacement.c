@@ -23,7 +23,6 @@
  * Name: 		-static_speed_left
  * Description:	-speed of the left wheel of the robot [step/sec]
  * 				-CAUTION: the maximum angle is 1100 step/sec
- * 				-CAUTION: the velocity must have zero dozens and units (only 100,200,300,... are acceptable)
  *
  * */
 static	uint16_t static_speed_left 	= INITIAL_SPEED_LEFT;
@@ -32,7 +31,6 @@ static	uint16_t static_speed_left 	= INITIAL_SPEED_LEFT;
  * Name: 		-static_speed_right
  * Description:	-speed of the right wheel of the robot [step/sec]
  * 				-CAUTION: the maximum angle is 1100 step/sec
- * 				-CAUTION: the velocity must have zero dozens and units (only 100,200,300,... are acceptable)
  *
  * */
 static	uint16_t static_speed_right = INITIAL_SPEED_RIGHT;

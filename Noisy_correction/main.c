@@ -42,8 +42,8 @@ int main(void)
 
     /* Infinite loop. */
     while (1) {
-    	left_motor_set_speed(200);
-    	right_motor_set_speed(400);
+    	left_motor_set_speed(700);
+    	right_motor_set_speed(770);
     }
 }
 
