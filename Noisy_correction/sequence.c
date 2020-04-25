@@ -21,8 +21,8 @@
 #define PERIOD_MODE_1	100
 #define PERIOD_MODE_2	200 		//to be modified according to the motors speed
 #define PERIOD_MODE_3	100
-#define RIGHT_ANGLE 	 90
-#define SIDE_SQUARE      sqrt(2)
+//#define RIGHT_ANGLE 	 90
+//#define SIDE_SQUARE      sqrt(2)
 
 
 static THD_WORKING_AREA(waSEQUENCE, THREAD_SEQ_SIZE);
@@ -64,6 +64,7 @@ static THD_FUNCTION(SEQThd, arg)
 		// robot moves vertically with a distance = radius of the circumscribed circle for the start position
 		// robot moves according to  the type of the chosen figure
 		{
+			// move from center to starting point
 			displacement_distance_reset();
 			displacement_straight_speed_set(NORMAL_SPEED);
 			while (displacement_straight_distance_check(figure_size_get()))
@@ -72,25 +73,32 @@ static THD_FUNCTION(SEQThd, arg)
 
 			if (figure_get()== FIGURE_CIRCLE)
 			{
-				while(1)
-				{
+					//rotate to orient the robot
 					displacement_angle_reset();
 					displacement_rotation(NORMAL_ROT_SPEED);
 					while (displacement_rotation_angle_check(ANGLE_90_DEGREES))
 						chThdSleepMilliseconds(PERIOD_MODE_3);
 					displacement_rotation(NO_SPEED);
-
+					//draw the figure
+					displacement_angle_reset();
 					displacement_circle_speed();
-				}
+					//rotate to re-orient the robot in order to go back to center
+					displacement_angle_reset();
+					displacement_rotation(NORMAL_ROT_SPEED);
+					while (displacement_rotation_angle_check(ANGLE_90_DEGREES))
+						chThdSleepMilliseconds(PERIOD_MODE_3);
+					displacement_rotation(NO_SPEED);
 			}
 
 			if (figure_get()== FIGURE_SQUARE)
 			{
+					 // rotate to orient robot
 					 displacement_angle_reset();
 			  		 displacement_rotation(NORMAL_ROT_SPEED);
 			  		 while (displacement_rotation_angle_check(ANGLE_SQUARE_DEGREES))
 			  			chThdSleepMilliseconds(PERIOD_MODE_3);
 			  		displacement_rotation(NO_SPEED);
+			  		// draw figure
 			  		for (i=0; i<3; i++)
 			  		{
 			  			displacement_distance_reset();
@@ -110,16 +118,51 @@ static THD_FUNCTION(SEQThd, arg)
 			  		while (displacement_straight_distance_check(figure_side_get()))
 			  			chThdSleepMilliseconds(PERIOD_MODE_3);
 			  		displacement_straight_speed_set(NO_SPEED);
+			  		//rotate to re-orient the robot in order to go back to center
 			  		displacement_angle_reset();
 			  		displacement_rotation(NORMAL_ROT_SPEED);
 			  		while (displacement_rotation_angle_check(ANGLE_SQUARE_DEGREES))
-			  		chThdSleepMilliseconds(PERIOD_MODE_3);
+			  			chThdSleepMilliseconds(PERIOD_MODE_3);
 			  		displacement_rotation(NO_SPEED);
 			}
-			/*if (figure_get()== FIGURE_TRIANGLE)
-				while(1){
+
+			if (figure_get()== FIGURE_TRIANGLE)
+			{
+				// rotate to orient robot
+				displacement_angle_reset();
+				displacement_rotation(NORMAL_ROT_SPEED);
+				while (displacement_rotation_angle_check(ANGLE_TRIANGLE_DEGREES))
+					chThdSleepMilliseconds(PERIOD_MODE_3);
+				displacement_rotation(NO_SPEED);
+				for (i=0; i<2; i++)
+				{
+					displacement_distance_reset();
+					displacement_straight_speed_set(NORMAL_SPEED);
+					while (displacement_straight_distance_check(figure_side_get()))
+						chThdSleepMilliseconds(PERIOD_MODE_3);
+					displacement_straight_speed_set(NO_SPEED);
+					displacement_angle_reset();
+					displacement_rotation(NORMAL_ROT_SPEED);
+					while (displacement_rotation_angle_check(ANGLE_60_DEGREES))
+						chThdSleepMilliseconds(PERIOD_MODE_3);
+					displacement_rotation(NO_SPEED);
+					i++;
 				}
-			*/
+				displacement_distance_reset();
+				displacement_straight_speed_set(NORMAL_SPEED);
+				while (displacement_straight_distance_check(figure_side_get()))
+					chThdSleepMilliseconds(PERIOD_MODE_3);
+				displacement_straight_speed_set(NO_SPEED);
+				//rotate to re-orient the robot in order to go back to center
+				displacement_angle_reset();
+				displacement_rotation(NORMAL_ROT_SPEED);
+				while (displacement_rotation_angle_check(ANGLE_TRIANGLE_DEGREES))
+					chThdSleepMilliseconds(PERIOD_MODE_3);
+				displacement_rotation(NO_SPEED);
+			}
+
+
+			//return from starting point to center
 			displacement_distance_reset();
 			displacement_straight_speed_set(NORMAL_SPEED);
 			while (displacement_straight_distance_check(figure_size_get()))
