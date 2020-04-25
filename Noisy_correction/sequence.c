@@ -11,16 +11,21 @@
 #include <sensors/VL53L0X/VL53L0X.h>
 #include <motors.h>
 #include <sequence.h>
+#include <math.h>
 
 
 #define THREAD_SEQ_SIZE 256
+#define ROT_SPEED 		500
 #define NB_MEASUREMENTS  29
 #define CONVERT			 10  		//to convert units from [0.1mm] to [mm]
 #define SEQU_THD_PRIO 	NORMALPRIO+1
 #define PERIOD_MODE_1	100
 #define PERIOD_MODE_2	200 //to be modified according to the motors speed
 #define PERIOD_MODE_3	100
-
+#define ROT_ANGLE_CIRCLE 90
+#define ROT_ANGLE_SQUARE 135 // angle = 135°
+#define RIGHT_ANGLE 	 90
+#define SIDE_SQUARE      sqrt(2)
 
 
 static THD_WORKING_AREA(waSEQUENCE, THREAD_SEQ_SIZE);
@@ -71,13 +76,40 @@ static THD_FUNCTION(SEQThd, arg)
 			{
 				while(1)
 				{
-					displacement_circle_speed(void);
+					displacement_angle_reset();
+					displacement_rotation(ROT_SPEED);
+					while (displacement_rotation_angle_check()<ROT_ANGLE_CIRCLE)
+						chThdSleepMilliseconds(PERIOD_MODE_3);
+					displacement_rotation(NO_SPEED);
+
+					displacement_circle_speed();
 				}
 			}
-			/*if (figure_get()== FIGURE_SQUARE)
-			  	 while(1){
-			  	  }
-			if (figure_get()== FIGURE_TRIANGLE)
+
+			if (figure_get()== FIGURE_SQUARE)
+			{
+			  	 //while(1)
+					 displacement_angle_reset();
+			  		 displacement_rotation(ROT_SPEED);
+			  		 while (displacement_rotation_angle_check()< ROT_ANGLE_SQUARE)
+			  			chThdSleepMilliseconds(PERIOD_MODE_3);
+			  		displacement_rotation(NO_SPEED);
+			  		for (i=0; i<4; i++)
+			  		{
+			  			displacement_distance_reset();
+			  			displacement_straight_speed_set(NORMAL_SPEED);
+			  			while (CONVERT*displacement_distance_get()< SIDE_SQUARE*figure_size_get())
+			  				chThdSleepMilliseconds(PERIOD_MODE_3);
+			  			displacement_straight_speed_set(NO_SPEED);
+			  			displacement_angle_reset();
+			  			displacement_rotation(ROT_SPEED);
+			  			while (displacement_rotation_angle_check()< RIGHT_ANGLE)
+			  				 chThdSleepMilliseconds(PERIOD_MODE_3);
+			  			displacement_rotation(NO_SPEED);
+			  			i++;
+			  		}
+			}
+			/*if (figure_get()== FIGURE_TRIANGLE)
 				while(1){
 				}
 			*/
