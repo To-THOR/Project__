@@ -91,10 +91,10 @@ static THD_FUNCTION(SEQThd, arg)
 			  	 //while(1)
 					 displacement_angle_reset();
 			  		 displacement_rotation(ROT_SPEED);
-			  		 while (displacement_rotation_angle_check()< ROT_ANGLE_SQUARE)
+			  		 while (displacement_rotation_angle_check(ROT_ANGLE_SQUARE))
 			  			chThdSleepMilliseconds(PERIOD_MODE_3);
 			  		displacement_rotation(NO_SPEED);
-			  		for (i=0; i<4; i++)
+			  		for (i=0; i<3; i++)
 			  		{
 			  			displacement_distance_reset();
 			  			displacement_straight_speed_set(NORMAL_SPEED);
@@ -108,6 +108,11 @@ static THD_FUNCTION(SEQThd, arg)
 			  			displacement_rotation(NO_SPEED);
 			  			i++;
 			  		}
+			  		displacement_distance_reset();
+			  		displacement_straight_speed_set(NORMAL_SPEED);
+			  		while (CONVERT*displacement_distance_get()< SIDE_SQUARE*figure_size_get())
+			  			chThdSleepMilliseconds(PERIOD_MODE_3);
+			  		displacement_straight_speed_set(NO_SPEED);
 			}
 			/*if (figure_get()== FIGURE_TRIANGLE)
 				while(1){
