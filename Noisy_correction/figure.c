@@ -30,7 +30,7 @@ static int16_t figure_size_static = FIGURE_NO_SIZE;
  *
  * */
 void figure_set(int figure_type){
-	if(firgure_type == FIGURE_NONE || figure_type == FIGURE_CIRCLE \
+	if(figure_type == FIGURE_NONE || figure_type == FIGURE_CIRCLE \
 			|| figure_type == FIGURE_TRIANGLE || figure_type == FIGURE_SQUARE){	//Checking the validity of the
 																				//parameter
 		figure_static = figure_type;
@@ -108,9 +108,9 @@ int16_t figure_side_get(void){
 			return SIDE_ZERO;
 		}
 		break;
-	}
 	default:
 		return SIDE_ZERO;
+	}
 }
 
 /*
