@@ -15,15 +15,12 @@
 
 
 #define THREAD_SEQ_SIZE 256
-#define ROT_SPEED 		500
 #define NB_MEASUREMENTS  29
 #define CONVERT			 10  		//to convert units from [0.1mm] to [mm]
 #define SEQU_THD_PRIO 	NORMALPRIO+1
 #define PERIOD_MODE_1	100
 #define PERIOD_MODE_2	200 //to be modified according to the motors speed
 #define PERIOD_MODE_3	100
-#define ROT_ANGLE_CIRCLE 90
-#define ROT_ANGLE_SQUARE 135 // angle = 135°
 #define RIGHT_ANGLE 	 90
 #define SIDE_SQUARE      sqrt(2)
 
@@ -52,7 +49,7 @@ static THD_FUNCTION(SEQThd, arg)
 		// If the distance given by sensor VL53L0X is bigger then the size of the wanted figure: go to mode 3
 		// If the distance is smaller: error: go to mode 1
 		{
-			displacement_rotation(ROT_SPEED);
+			displacement_rotation(NORMAL_ROT_SPEED);
 			i= i+1; // incrementation of number of measurements counter
 			if((int) VL53L0X_get_dist_mm() <= figure_size_get()) //distance is initially an uint16_t
 				mode_raise_error();
@@ -69,7 +66,7 @@ static THD_FUNCTION(SEQThd, arg)
 		{
 			displacement_distance_reset();
 			displacement_straight_speed_set(NORMAL_SPEED);
-			while (CONVERT*displacement_distance_get()<figure_size_get())
+			while (displacement_straight_distance_check(figure_size_get()))
 				chThdSleepMilliseconds(PERIOD_MODE_3);
 			displacement_straight_speed_set(NO_SPEED);
 
@@ -78,8 +75,8 @@ static THD_FUNCTION(SEQThd, arg)
 				while(1)
 				{
 					displacement_angle_reset();
-					displacement_rotation(ROT_SPEED);
-					while (displacement_rotation_angle_check()<ROT_ANGLE_CIRCLE)
+					displacement_rotation(NORMAL_ROT_SPEED);
+					while (displacement_rotation_angle_check(ANGLE_90_DEGREES))
 						chThdSleepMilliseconds(PERIOD_MODE_3);
 					displacement_rotation(NO_SPEED);
 
@@ -89,29 +86,28 @@ static THD_FUNCTION(SEQThd, arg)
 
 			if (figure_get()== FIGURE_SQUARE)
 			{
-			  	 //while(1)
 					 displacement_angle_reset();
-			  		 displacement_rotation(ROT_SPEED);
-			  		 while (displacement_rotation_angle_check(ROT_ANGLE_SQUARE))
+			  		 displacement_rotation(NORMAL_ROT_SPEED);
+			  		 while (displacement_rotation_angle_check(ANGLE_SQUARE_DEGREES))
 			  			chThdSleepMilliseconds(PERIOD_MODE_3);
 			  		displacement_rotation(NO_SPEED);
 			  		for (i=0; i<3; i++)
 			  		{
 			  			displacement_distance_reset();
 			  			displacement_straight_speed_set(NORMAL_SPEED);
-			  			while (CONVERT*displacement_distance_get()< SIDE_SQUARE*figure_size_get())
+			  			while (displacement_straight_distance_check(figure_side_get()))
 			  				chThdSleepMilliseconds(PERIOD_MODE_3);
 			  			displacement_straight_speed_set(NO_SPEED);
 			  			displacement_angle_reset();
-			  			displacement_rotation(ROT_SPEED);
-			  			while (displacement_rotation_angle_check()< RIGHT_ANGLE)
+			  			displacement_rotation(NORMAL_ROT_SPEED);
+			  			while (displacement_rotation_angle_check(ANGLE_90_DEGREES))
 			  				 chThdSleepMilliseconds(PERIOD_MODE_3);
 			  			displacement_rotation(NO_SPEED);
 			  			i++;
 			  		}
 			  		displacement_distance_reset();
 			  		displacement_straight_speed_set(NORMAL_SPEED);
-			  		while (CONVERT*displacement_distance_get()< SIDE_SQUARE*figure_size_get())
+			  		while (displacement_straight_distance_check(figure_side_get()))
 			  			chThdSleepMilliseconds(PERIOD_MODE_3);
 			  		displacement_straight_speed_set(NO_SPEED);
 			}
