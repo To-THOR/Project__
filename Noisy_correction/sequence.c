@@ -82,6 +82,9 @@ static THD_FUNCTION(SEQThd, arg)
 					//draw the figure
 					displacement_angle_reset();
 					displacement_circle_speed();
+					while (displacement_rotation_angle_check(ANGLE_360_DEGREES))
+						chThdSleepMilliseconds(PERIOD_MODE_3);
+					displacement_rotation(NO_SPEED);
 					//rotate to re-orient the robot in order to go back to center
 					displacement_angle_reset();
 					displacement_rotation(NORMAL_ROT_SPEED);
