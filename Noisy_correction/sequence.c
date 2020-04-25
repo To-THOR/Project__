@@ -19,7 +19,7 @@
 #define CONVERT			 10  		//to convert units from [0.1mm] to [mm]
 #define SEQU_THD_PRIO 	NORMALPRIO+1
 #define PERIOD_MODE_1	100
-#define PERIOD_MODE_2	200 //to be modified according to the motors speed
+#define PERIOD_MODE_2	200 		//to be modified according to the motors speed
 #define PERIOD_MODE_3	100
 #define RIGHT_ANGLE 	 90
 #define SIDE_SQUARE      sqrt(2)
@@ -110,11 +110,21 @@ static THD_FUNCTION(SEQThd, arg)
 			  		while (displacement_straight_distance_check(figure_side_get()))
 			  			chThdSleepMilliseconds(PERIOD_MODE_3);
 			  		displacement_straight_speed_set(NO_SPEED);
+			  		displacement_angle_reset();
+			  		displacement_rotation(NORMAL_ROT_SPEED);
+			  		while (displacement_rotation_angle_check(ANGLE_SQUARE_DEGREES))
+			  		chThdSleepMilliseconds(PERIOD_MODE_3);
+			  		displacement_rotation(NO_SPEED);
 			}
 			/*if (figure_get()== FIGURE_TRIANGLE)
 				while(1){
 				}
 			*/
+			displacement_distance_reset();
+			displacement_straight_speed_set(NORMAL_SPEED);
+			while (displacement_straight_distance_check(figure_size_get()))
+				chThdSleepMilliseconds(PERIOD_MODE_3);
+			displacement_straight_speed_set(NO_SPEED);
 		}
 	}
 }
