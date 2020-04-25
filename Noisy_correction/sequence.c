@@ -67,6 +67,7 @@ static THD_FUNCTION(SEQThd, arg)
 		// robot moves vertically with a distance = radius of the circumscribed circle for the start position
 		// robot moves according to  the type of the chosen figure
 		{
+			displacement_distance_reset();
 			displacement_straight_speed_set(NORMAL_SPEED);
 			while (CONVERT*displacement_distance_get()<figure_size_get())
 				chThdSleepMilliseconds(PERIOD_MODE_3);

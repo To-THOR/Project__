@@ -110,6 +110,12 @@ uint8_t displacement_rotation_angle_check(int16_t angle_degrees){
 		else
 			return ANGLE_NOT_REACHED;
 		break;
+	case ANGLE_60_DEGREES :
+			if (right_motor_get_pos()- left_motor_get_pos()>= ANGLE_60_STEP)
+				return ANGLE_REACHED;
+			else
+				return ANGLE_NOT_REACHED;
+			break;
 	case ANGLE_360_DEGREES :
 		if (right_motor_get_pos()- left_motor_get_pos() >= ANGLE_360_STEP)
 			return ANGLE_REACHED;
