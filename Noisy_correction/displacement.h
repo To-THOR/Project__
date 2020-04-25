@@ -7,6 +7,7 @@
 #define NORMAL_ROT_SPEED 			500
 #define ANGLE_90_DEGREES			90
 #define ANGLE_SQUARE_DEGREES		135						// angle = 135°
+#define ANGLE_TRIANGLE_DEGREES		150						// angle = 150°
 #define	SIDE_SQUARE_FACTOR			(float)1.4142			//square root of 2
 #define SIDE_SQUARE_DISTANCE
 
