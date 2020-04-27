@@ -20,6 +20,7 @@
 #include <sequence.h>
 
 
+#define PERIOD_MAIN	1000
 
 int main(void)
 {
@@ -43,7 +44,7 @@ int main(void)
 
     /* Infinite loop. */
     while (1) {
-    	;
+    	chThdSleepMilliseconds(PERIOD_MAIN);
     }
 }
 

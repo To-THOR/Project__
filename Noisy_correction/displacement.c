@@ -157,7 +157,7 @@ void displacement_angle_reset(void){
 
 void displacement_rotation(int32_t speed)
 {
-	if(speed == NORMAL_SPEED){
+	if(speed == NORMAL_ROT_SPEED){
 		right_motor_set_speed(NORMAL_ROT_SPEED);
 		left_motor_set_speed(-NORMAL_ROT_SPEED);
 	}
