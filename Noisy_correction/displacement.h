@@ -20,6 +20,7 @@
 
 void 		displacement_start(void);
 uint8_t 	displacement_straight_distance_check(int16_t distance_mm);
+uint8_t displacement_rotation_angle_check(int16_t angle_degrees);
 void 		displacement_distance_reset(void);
 void 		displacement_angle_reset(void);
 void 		displacement_rotation(int32_t speed);
