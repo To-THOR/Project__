@@ -52,7 +52,7 @@ static THD_FUNCTION(SEQThd, arg)
 		// If the distance is smaller: error: go to mode 1
 		{
 			displacement_rotation(NORMAL_ROT_SPEED);
-			i= i+1; // incrementation of number of measurements counter
+			i= i+1; 	// incrementation of number of measurements counter
 			if((int) VL53L0X_get_dist_mm() <= figure_size_get()) //distance is initially an uint16_t
 				mode_raise_error();
 			if(i == NB_MEASUREMENTS) // number of needed measurements, dep on chosen frequency
