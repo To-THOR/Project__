@@ -11,6 +11,7 @@
 #include <fft.h>
 #include <arm_math.h>
 #include <figure.h>
+#include <mode.h>
 
 //semaphore
 //static BSEMAPHORE_DECL(sendToComputer_sem, TRUE);

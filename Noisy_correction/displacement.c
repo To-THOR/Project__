@@ -18,7 +18,7 @@
 #define WHEEL_PERIMETER				130 									//[mm]
 #define	WHEEL_GAP					53										//[mm] distance between wheels
 #define	MM_TO_STEP_FACTOR				((float)STEPS_PER_REVOLUTION/(float)WHEEL_PERIMETER)
-#define DEGREES_TO_STEP_FACTOR			(float)(STEPS_PER_REVOLUTION*WHEEL_GAP*2*PI/(360*WHEEL_PERIMETER)
+#define DEGREES_TO_STEP_FACTOR			(float)((STEPS_PER_REVOLUTION*WHEEL_GAP*2*PI)/(360*WHEEL_PERIMETER))
 #define DISTANCE_1_STEP					(uint16_t)(FIGURE_SIZE_1*MM_TO_STEP_FACTOR)
 #define DISTANCE_2_STEP					(uint16_t)(FIGURE_SIZE_2*MM_TO_STEP_FACTOR)
 #define DISTANCE_MAX_STEP				(uint16_t)(FIGURE_SIZE_MAX*MM_TO_STEP_FACTOR)
@@ -40,6 +40,7 @@
 #define STEP_EQUALITY_ERROR				(uint16_t)(5)
 #define	ANGLE_90_STEP					(uint16_t)(DEGREES_TO_STEP_FACTOR*ANGLE_90_DEGREES)
 #define	ANGLE_60_STEP					(uint16_t)(DEGREES_TO_STEP_FACTOR*ANGLE_60_DEGREES)
+#define	ANGLE_360_STEP					(uint16_t)(DEGREES_TO_STEP_FACTOR*ANGLE_360_DEGREES)
 #define	ANGLE_SQUARE_STEP				(uint16_t)(DEGREES_TO_STEP_FACTOR*ANGLE_SQUARE_DEGREES)
 #define	ANGLE_TRIANGLE_STEP				(uint16_t)(DEGREES_TO_STEP_FACTOR*ANGLE_TRIANGLE_DEGREES)
 
@@ -117,15 +118,15 @@ uint8_t displacement_straight_distance_check(int16_t distance_mm){
 
 uint8_t displacement_rotation_angle_check(int16_t angle_degrees){
 	switch(angle_degrees){
-	case ANGLE_60_DEGREES :
-		if((right_motor_get_pos()- left_motor_get_pos()) >= ANGLE_60_STEP) return ANGLE_REACHED;
+	case ANGLE_60_DEGREES:
+		if((right_motor_get_pos()-left_motor_get_pos()) >= ANGLE_60_STEP) return ANGLE_REACHED;
 		else return ANGLE_NOT_REACHED;
 		break;
-	case ANGLE_90_DEGREES :
+	case ANGLE_90_DEGREES:
 		if (right_motor_get_pos()- left_motor_get_pos()>= ANGLE_90_STEP) return ANGLE_REACHED;
 		else return ANGLE_NOT_REACHED;
 		break;
-	case ANGLE_360_DEGREES :
+	case ANGLE_360_DEGREES:
 		if (right_motor_get_pos()- left_motor_get_pos() >= ANGLE_360_STEP)
 			return ANGLE_REACHED;
 		else return ANGLE_NOT_REACHED;
@@ -182,7 +183,7 @@ void displacement_straight_speed_set(int32_t speed){
 
 
 void displacement_circle_speed(void){
-	switch(figure_get_size()){
+	switch(figure_size_get()){
 	case FIGURE_NO_SIZE:{
 		right_motor_set_speed(NO_SPEED);
 		left_motor_set_speed(NO_SPEED);

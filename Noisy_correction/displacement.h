@@ -10,10 +10,10 @@
 #define ANGLE_SQUARE_DEGREES		135						// angle = 135°
 #define ANGLE_TRIANGLE_DEGREES		150						// angle = 150°
 #define ANGLE_360_DEGREES			360						// angle = 360°
-#define ANGLE_REACHED				0
-#define ANGLE_NOT_REACHED			1
-#define DISTANCE_REACHED			0
-#define	DISTANCE_NOT_REACHED		1
+#define ANGLE_REACHED				(uint8_t)(0)
+#define ANGLE_NOT_REACHED			(uint8_t)(1)
+#define DISTANCE_REACHED			(uint8_t)(0)
+#define	DISTANCE_NOT_REACHED		(uint8_t)(1)
 
 // --------------------------- FUNCTIONS ---------------------------
 
