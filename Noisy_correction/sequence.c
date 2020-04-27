@@ -45,17 +45,19 @@ static THD_FUNCTION(SEQThd, arg)
 		}
 
 		i = 0;
+		displacement_angle_reset();
+		displacement_rotation(NORMAL_ROT_SPEED);
 		while (mode_get()== MODE_CHECK)
 		// Working principle:
 		// robot spins 360� around itself until distance measurements are done
 		// If the distance given by sensor VL53L0X is bigger then the size of the wanted figure: go to mode 3
 		// If the distance is smaller: error: go to mode 1
 		{
-			displacement_rotation(NORMAL_ROT_SPEED);
-			i= i+1; 	// incrementation of number of measurements counter
-			if((int) VL53L0X_get_dist_mm() <= figure_size_get()) //distance is initially an uint16_t
+			if((int) VL53L0X_get_dist_mm() <= figure_size_get()){ //distance is initially an uint16_t
 				mode_raise_error();
-			if(i == NB_MEASUREMENTS) // number of needed measurements, dep on chosen frequency
+				mode_update();
+			}
+			if(!displacement_rotation_angle_check(ANGLE_360_DEGREES)) // number of needed measurements, dep on chosen frequency
 				mode_update();
 
 			chThdSleepMilliseconds(PERIOD_MODE_2);
