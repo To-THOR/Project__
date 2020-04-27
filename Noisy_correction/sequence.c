@@ -12,17 +12,15 @@
 #include <motors.h>
 #include <sequence.h>
 #include <math.h>
+#include <displacement.h>
 
 
 #define THREAD_SEQ_SIZE 256
 #define NB_MEASUREMENTS  29
-#define CONVERT			 10  		//to convert units from [0.1mm] to [mm]
 #define SEQU_THD_PRIO 	NORMALPRIO+1
 #define PERIOD_MODE_1	100
 #define PERIOD_MODE_2	200 		//to be modified according to the motors speed
 #define PERIOD_MODE_3	100
-//#define RIGHT_ANGLE 	 90
-//#define SIDE_SQUARE      sqrt(2)
 
 
 static THD_WORKING_AREA(waSEQUENCE, THREAD_SEQ_SIZE);
@@ -30,8 +28,12 @@ static THD_FUNCTION(SEQThd, arg)
 {
 	while(1)
 	{
-
 		static int i = 0;
+
+		//RESET THE FIGURE AND FIGURE SIZE AND ELSE?
+		figure_set(FIGURE_NONE);
+		figure_size_set(FIGURE_NO_SIZE);
+
 		while (mode_get()== MODE_IDLE)
 		// Working principle:
 		// microphone is activated, if a sound is detected its frequency refers to a figure (form and dimensions)
@@ -171,6 +173,8 @@ static THD_FUNCTION(SEQThd, arg)
 			while (displacement_straight_distance_check(figure_size_get()))
 				chThdSleepMilliseconds(PERIOD_MODE_3);
 			displacement_straight_speed_set(NO_SPEED);
+
+			mode_update();
 		}
 	}
 }

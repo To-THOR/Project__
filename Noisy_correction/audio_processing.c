@@ -64,14 +64,17 @@ void sound_remote(float* data){
 
 	//draw a square
 	if(max_norm_index >= FREQ_FORWARD_L && max_norm_index <= FREQ_FORWARD_H){
+		figure_size_set(FIGURE_SIZE_1);
 		figure_set(FIGURE_SQUARE);
 	}
 	//draw a triangle
 	else if(max_norm_index >= FREQ_LEFT_L && max_norm_index <= FREQ_LEFT_H){
+		figure_size_set(FIGURE_SIZE_1);
 		figure_set(FIGURE_TRIANGLE);
 	}
 	//draw a circle
 	else if(max_norm_index >= FREQ_RIGHT_L && max_norm_index <= FREQ_RIGHT_H){
+		figure_size_set(FIGURE_SIZE_1);
 		figure_set(FIGURE_CIRCLE);
 	}
 
