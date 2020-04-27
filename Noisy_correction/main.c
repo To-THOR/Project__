@@ -17,6 +17,7 @@
 #include <figure.h>
 #include <displacement.h>
 #include <sensors/VL53L0X/VL53L0X.h>
+#include <sequence.h>
 
 
 
