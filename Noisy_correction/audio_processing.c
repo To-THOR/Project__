@@ -14,6 +14,7 @@
 #include <figure.h>
 #include <mode.h>
 
+
 //semaphore
 //static BSEMAPHORE_DECL(sendToComputer_sem, TRUE);
 
@@ -27,6 +28,11 @@ static float micLeft_output[FFT_SIZE];
 static float micRight_output[FFT_SIZE];
 static float micFront_output[FFT_SIZE];
 static float micBack_output[FFT_SIZE];
+
+
+#define NORM_TABLE_SIZE	((int)(17))
+#define INITIAL_TABLE_COUNTER_VALUE ((uint8_t)(0))
+#define	DEFAULT_MEAN	((uint8_t)(0))
 
 #define MIN_VALUE_THRESHOLD	10000 
 
@@ -46,6 +52,13 @@ static float micBack_output[FFT_SIZE];
 #define FREQ_BACKWARD_L		(FREQ_BACKWARD-1)
 #define FREQ_BACKWARD_H		(FREQ_BACKWARD+1)
 
+static uint16_t max_norm_table[NORM_TABLE_SIZE] = {0};
+
+
+uint8_t max_norm_mean(void);
+void max_norm_buff_update(uint8_t max_norm_new_index);
+
+
 /*
 *	Simple function used to detect the highest value in a buffer
 *	and to execute a motor command depending on it
@@ -53,6 +66,7 @@ static float micBack_output[FFT_SIZE];
 void sound_remote(float* data){
 	float max_norm = MIN_VALUE_THRESHOLD;
 	int16_t max_norm_index = -1; 
+	uint8_t mean;
 
 	//search for the highest peak
 	for(uint16_t i = MIN_FREQ ; i <= MAX_FREQ ; i++){
@@ -62,18 +76,21 @@ void sound_remote(float* data){
 		}
 	}
 
+	max_norm_buff_update(max_norm_index);
+	mean = max_norm_mean();
+
 	//draw a square
-	if(max_norm_index >= FREQ_FORWARD_L && max_norm_index <= FREQ_FORWARD_H){
+	if(mean >= FREQ_FORWARD_L && mean <= FREQ_FORWARD_H){
 		figure_size_set(FIGURE_SIZE_1);
 		figure_set(FIGURE_SQUARE);
 	}
 	//draw a triangle
-	else if(max_norm_index >= FREQ_LEFT_L && max_norm_index <= FREQ_LEFT_H){
+	else if(mean >= FREQ_LEFT_L && mean <= FREQ_LEFT_H){
 		figure_size_set(FIGURE_SIZE_1);
 		figure_set(FIGURE_TRIANGLE);
 	}
 	//draw a circle
-	else if(max_norm_index >= FREQ_RIGHT_L && max_norm_index <= FREQ_RIGHT_H){
+	else if(mean >= FREQ_RIGHT_L && mean <= FREQ_RIGHT_H){
 		figure_size_set(FIGURE_SIZE_1);
 		figure_set(FIGURE_CIRCLE);
 	}
@@ -197,4 +214,20 @@ float* get_audio_buffer_ptr(BUFFER_NAME_t name){
 	else{
 		return NULL;
 	}
+}
+
+void max_norm_buff_update(uint8_t max_norm_new_index){
+	static uint8_t table_counter = INITIAL_TABLE_COUNTER_VALUE;
+
+	max_norm_table[table_counter] = max_norm_new_index;
+	if(++table_counter == NORM_TABLE_SIZE) table_counter = INITIAL_TABLE_COUNTER_VALUE;
+}
+
+uint8_t max_norm_mean(void){
+	uint8_t mean = DEFAULT_MEAN;
+	for(int i = 0; i < NORM_TABLE_SIZE; i++){
+		mean += max_norm_table[i];
+	}
+	mean /= NORM_TABLE_SIZE;
+	return mean;
 }
