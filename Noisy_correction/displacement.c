@@ -37,7 +37,7 @@
 #define	CIRCLE_SPEED_MAX				((uint32_t)(NORMAL_SPEED*CIRCLE_SPEED_FACTOR_MAX))
 #define STEP_EQUALITY_ERROR				((uint16_t)(5))
 #define	ANGLE_90_STEP					((uint16_t)(DEGREES_TO_STEP_FACTOR*ANGLE_90_DEGREES))
-#define	ANGLE_60_STEP					((uint16_t)(DEGREES_TO_STEP_FACTOR*ANGLE_60_DEGREES))
+#define	ANGLE_120_STEP					((uint16_t)(DEGREES_TO_STEP_FACTOR*ANGLE_120_DEGREES))
 #define	ANGLE_360_STEP					((uint16_t)(DEGREES_TO_STEP_FACTOR*ANGLE_360_DEGREES))
 #define	ANGLE_SQUARE_STEP				((uint16_t)(DEGREES_TO_STEP_FACTOR*ANGLE_SQUARE_DEGREES))
 #define	ANGLE_TRIANGLE_STEP				((uint16_t)(DEGREES_TO_STEP_FACTOR*ANGLE_TRIANGLE_DEGREES))
@@ -116,8 +116,8 @@ uint8_t displacement_straight_distance_check(int16_t distance_mm){
 
 uint8_t displacement_rotation_angle_check(int16_t angle_degrees){
 	switch(angle_degrees){
-	case ANGLE_60_DEGREES:
-		if((right_motor_get_pos()-left_motor_get_pos()) >= ANGLE_60_STEP) return ANGLE_REACHED;
+	case ANGLE_120_DEGREES:
+		if((right_motor_get_pos()-left_motor_get_pos()) >= ANGLE_120_STEP) return ANGLE_REACHED;
 		else return ANGLE_NOT_REACHED;
 		break;
 	case ANGLE_90_DEGREES:

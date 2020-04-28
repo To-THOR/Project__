@@ -44,7 +44,6 @@ static THD_FUNCTION(SEQThd, arg)
 			chThdSleepMilliseconds(PERIOD_MODE_1);
 		}
 
-		i = 0;
 		displacement_angle_reset();
 		displacement_rotation(NORMAL_ROT_SPEED);
 		while (mode_get()== MODE_CHECK)
@@ -62,6 +61,8 @@ static THD_FUNCTION(SEQThd, arg)
 
 			chThdSleepMilliseconds(PERIOD_MODE_2);
 		}
+
+		displacement_rotation(NO_SPEED);
 
 		if (mode_get()== MODE_DRAW)
 		// Working principle:
@@ -118,7 +119,6 @@ static THD_FUNCTION(SEQThd, arg)
 			  			while (displacement_rotation_angle_check(ANGLE_90_DEGREES))
 			  				 chThdSleepMilliseconds(PERIOD_MODE_3);
 			  			displacement_rotation(NO_SPEED);
-			  			i++;
 			  		}
 			  		displacement_distance_reset();
 			  		displacement_straight_speed_set(NORMAL_SPEED);
@@ -150,10 +150,9 @@ static THD_FUNCTION(SEQThd, arg)
 					displacement_straight_speed_set(NO_SPEED);
 					displacement_angle_reset();
 					displacement_rotation(NORMAL_ROT_SPEED);
-					while (displacement_rotation_angle_check(ANGLE_60_DEGREES))
+					while (displacement_rotation_angle_check(ANGLE_120_DEGREES))
 						chThdSleepMilliseconds(PERIOD_MODE_3);
 					displacement_rotation(NO_SPEED);
-					i++;
 				}
 				displacement_distance_reset();
 				displacement_straight_speed_set(NORMAL_SPEED);
