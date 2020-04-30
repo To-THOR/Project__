@@ -9,9 +9,9 @@
 #define	FIGURE_CIRCLE	3
 
 #define	FIGURE_NO_SIZE	(uint16_t)(0)	//[mm]
-#define FIGURE_SIZE_1	(uint16_t)(70) //[mm] ////////////////////////////////////for debug
-#define FIGURE_SIZE_2	(uint16_t)(100)	//[mm]
-#define FIGURE_SIZE_MAX	(uint16_t)(150)	//[mm]
+#define FIGURE_SIZE_1	(uint16_t)(150) //[mm] ////////////////////////////////////for debug
+#define FIGURE_SIZE_2	(uint16_t)(500)	//[mm]
+#define FIGURE_SIZE_MAX	(uint16_t)(800)	//[mm]
 
 #define SQUARE_FACTOR		(float)(1.4142)
 #define TRIANGLE_FACTOR		(float)(1.7321)
