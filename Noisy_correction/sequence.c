@@ -17,7 +17,7 @@
 
 #define THREAD_SEQ_SIZE 256
 #define NB_MEASUREMENTS  29
-#define SEQU_THD_PRIO 	NORMALPRIO+1
+#define SEQU_THD_PRIO 	NORMALPRIO+3
 #define PERIOD_MODE_1	100
 #define PERIOD_MODE_2	200 		//to be modified according to the motors speed
 #define PERIOD_MODE_3	100
@@ -26,20 +26,24 @@
 static THD_WORKING_AREA(waSEQUENCE, THREAD_SEQ_SIZE);
 static THD_FUNCTION(SEQThd, arg)
 {
+	figure_size_set(FIGURE_NO_SIZE);
+	max_norm_buff_reset();
+	figure_set(FIGURE_NONE);
 	while(1)
 	{
+
 		static int i = 0;
 
 		//RESET THE FIGURE AND FIGURE SIZE AND ELSE?
+		max_norm_buff_reset();
 		figure_set(FIGURE_NONE);
-		figure_size_set(FIGURE_NO_SIZE);
 
 		while (mode_get()== MODE_IDLE)
 		// Working principle:
 		// microphone is activated, if a sound is detected its frequency refers to a figure (form and dimensions)
 		{
 			// mic_start => processAudioData => sound_remote
-			if (figure_get() != FIGURE_NONE)
+			if (figure_get() != FIGURE_NONE && figure_size_get() != FIGURE_NO_SIZE)
 				mode_update();
 			chThdSleepMilliseconds(PERIOD_MODE_1);
 		}

@@ -30,4 +30,6 @@ void processAudioData(int16_t *data, uint16_t num_samples);
 */
 float* get_audio_buffer_ptr(BUFFER_NAME_t name);
 
+void max_norm_buff_reset(void);
+
 #endif /* AUDIO_PROCESSING_H */
