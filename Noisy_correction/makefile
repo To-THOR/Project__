@@ -15,7 +15,6 @@ CSRC += ./main.c \
 		./figure.c \
 		./displacement.c \
 		./audio_processing.c \
-		./communications.c \
 		./fft.c \
 
 #Header folders to include

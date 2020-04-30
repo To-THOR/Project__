@@ -11,7 +11,6 @@
 #include <audio/microphone.h>
 #include <audio_processing.h>
 #include <fft.h>
-#include <communications.h>
 #include <arm_math.h>
 #include <mode.h>
 #include <figure.h>
