@@ -39,11 +39,11 @@ int main(void)
     // sound remote will then set the figure when in MODE_IDLE
     mic_start(&processAudioData);
 
-    sequence_sequthd_init();
+    sequence_initial_reset();
 
     /* Infinite loop. */
     while (1) {
-    	chThdSleepMilliseconds(PERIOD_MAIN);
+    	sequence_main_function();
     }
 }
 
