@@ -23,168 +23,161 @@
 #define PERIOD_MODE_3	100
 
 
-static THD_WORKING_AREA(waSEQUENCE, THREAD_SEQ_SIZE);
-static THD_FUNCTION(SEQThd, arg)
-{
-	figure_size_set(FIGURE_NO_SIZE);
+void sequence_main_function(void){
+	static int i = 0;
+
 	max_norm_buff_reset();
 	figure_set(FIGURE_NONE);
-	while(1)
-	{
 
-		static int i = 0;
-
-		//RESET THE FIGURE AND FIGURE SIZE AND ELSE?
-		max_norm_buff_reset();
-		figure_set(FIGURE_NONE);
-
-		while (mode_get()== MODE_IDLE)
+	while (mode_get()== MODE_IDLE)
 		// Working principle:
 		// microphone is activated, if a sound is detected its frequency refers to a figure (form and dimensions)
-		{
-			// mic_start => processAudioData => sound_remote
-			if (figure_get() != FIGURE_NONE && figure_size_get() != FIGURE_NO_SIZE)
-				mode_update();
-			chThdSleepMilliseconds(PERIOD_MODE_1);
-		}
+	{
+		// mic_start => processAudioData => sound_remote
+		if (figure_get() != FIGURE_NONE && figure_size_get() != FIGURE_NO_SIZE)
+			mode_update();
+		chThdSleepMilliseconds(PERIOD_MODE_1);
+	}
 
-		displacement_angle_reset();
-		displacement_rotation(NORMAL_ROT_SPEED);
-		while (mode_get()== MODE_CHECK)
+	displacement_angle_reset();
+	displacement_rotation(NORMAL_ROT_SPEED);
+	while (mode_get()== MODE_CHECK)
 		// Working principle:
 		// robot spins 360� around itself until distance measurements are done
 		// If the distance given by sensor VL53L0X is bigger then the size of the wanted figure: go to mode 3
 		// If the distance is smaller: error: go to mode 1
-		{
-			if((int) VL53L0X_get_dist_mm() <= figure_size_get()){ //distance is initially an uint16_t
-				mode_raise_error();
-				mode_update();
-			}
-			if(!displacement_rotation_angle_check(ANGLE_360_DEGREES)) // number of needed measurements, dep on chosen frequency
-				mode_update();
-
-			chThdSleepMilliseconds(PERIOD_MODE_2);
+	{
+		if((int) VL53L0X_get_dist_mm() <= figure_size_get()){ //distance is initially an uint16_t
+			mode_raise_error();
+			mode_update();
 		}
+		if(!displacement_rotation_angle_check(ANGLE_360_DEGREES)) // number of needed measurements, dep on chosen frequency
+			mode_update();
 
-		displacement_rotation(NO_SPEED);
+		chThdSleepMilliseconds(PERIOD_MODE_2);
+	}
 
-		if (mode_get()== MODE_DRAW)
+	displacement_rotation(NO_SPEED);
+
+	if (mode_get()== MODE_DRAW)
 		// Working principle:
 		// robot moves vertically with a distance = radius of the circumscribed circle for the start position
 		// robot moves according to  the type of the chosen figure
+	{
+		// move from center to starting point
+		displacement_distance_reset();
+		displacement_straight_speed_set(NORMAL_SPEED);
+		while (displacement_straight_distance_check(figure_size_get()))
+			chThdSleepMilliseconds(PERIOD_MODE_3);
+		displacement_straight_speed_set(NO_SPEED);
+
+		if (figure_get()== FIGURE_CIRCLE)
 		{
-			// move from center to starting point
-			displacement_distance_reset();
-			displacement_straight_speed_set(NORMAL_SPEED);
-			while (displacement_straight_distance_check(figure_size_get()))
+			//rotate to orient the robot
+			displacement_angle_reset();
+			displacement_rotation(NORMAL_ROT_SPEED);
+			while (displacement_rotation_angle_check(ANGLE_90_DEGREES))
 				chThdSleepMilliseconds(PERIOD_MODE_3);
-			displacement_straight_speed_set(NO_SPEED);
+			displacement_rotation(NO_SPEED);
+			//draw the figure
+			displacement_angle_reset();
+			displacement_circle_speed();
+			while (displacement_rotation_angle_check(ANGLE_360_DEGREES))
+				chThdSleepMilliseconds(PERIOD_MODE_3);
+			displacement_rotation(NO_SPEED);
+			//rotate to re-orient the robot in order to go back to center
+			displacement_angle_reset();
+			displacement_rotation(NORMAL_ROT_SPEED);
+			while (displacement_rotation_angle_check(ANGLE_90_DEGREES))
+				chThdSleepMilliseconds(PERIOD_MODE_3);
+			displacement_rotation(NO_SPEED);
+		}
 
-			if (figure_get()== FIGURE_CIRCLE)
+		if (figure_get()== FIGURE_SQUARE)
+		{
+			// rotate to orient robot
+			displacement_angle_reset();
+			displacement_rotation(NORMAL_ROT_SPEED);
+			while (displacement_rotation_angle_check(ANGLE_SQUARE_DEGREES))
+				chThdSleepMilliseconds(PERIOD_MODE_3);
+			displacement_rotation(NO_SPEED);
+			// draw figure
+			for (i=0; i<3; i++)
 			{
-					//rotate to orient the robot
-					displacement_angle_reset();
-					displacement_rotation(NORMAL_ROT_SPEED);
-					while (displacement_rotation_angle_check(ANGLE_90_DEGREES))
-						chThdSleepMilliseconds(PERIOD_MODE_3);
-					displacement_rotation(NO_SPEED);
-					//draw the figure
-					displacement_angle_reset();
-					displacement_circle_speed();
-					while (displacement_rotation_angle_check(ANGLE_360_DEGREES))
-						chThdSleepMilliseconds(PERIOD_MODE_3);
-					displacement_rotation(NO_SPEED);
-					//rotate to re-orient the robot in order to go back to center
-					displacement_angle_reset();
-					displacement_rotation(NORMAL_ROT_SPEED);
-					while (displacement_rotation_angle_check(ANGLE_90_DEGREES))
-						chThdSleepMilliseconds(PERIOD_MODE_3);
-					displacement_rotation(NO_SPEED);
-			}
-
-			if (figure_get()== FIGURE_SQUARE)
-			{
-					 // rotate to orient robot
-					 displacement_angle_reset();
-			  		 displacement_rotation(NORMAL_ROT_SPEED);
-			  		 while (displacement_rotation_angle_check(ANGLE_SQUARE_DEGREES))
-			  			chThdSleepMilliseconds(PERIOD_MODE_3);
-			  		displacement_rotation(NO_SPEED);
-			  		// draw figure
-			  		for (i=0; i<3; i++)
-			  		{
-			  			displacement_distance_reset();
-			  			displacement_straight_speed_set(NORMAL_SPEED);
-			  			while (displacement_straight_distance_check(figure_side_get()))
-			  				chThdSleepMilliseconds(PERIOD_MODE_3);
-			  			displacement_straight_speed_set(NO_SPEED);
-			  			displacement_angle_reset();
-			  			displacement_rotation(NORMAL_ROT_SPEED);
-			  			while (displacement_rotation_angle_check(ANGLE_90_DEGREES))
-			  				 chThdSleepMilliseconds(PERIOD_MODE_3);
-			  			displacement_rotation(NO_SPEED);
-			  		}
-			  		displacement_distance_reset();
-			  		displacement_straight_speed_set(NORMAL_SPEED);
-			  		while (displacement_straight_distance_check(figure_side_get()))
-			  			chThdSleepMilliseconds(PERIOD_MODE_3);
-			  		displacement_straight_speed_set(NO_SPEED);
-			  		//rotate to re-orient the robot in order to go back to center
-			  		displacement_angle_reset();
-			  		displacement_rotation(NORMAL_ROT_SPEED);
-			  		while (displacement_rotation_angle_check(ANGLE_SQUARE_DEGREES))
-			  			chThdSleepMilliseconds(PERIOD_MODE_3);
-			  		displacement_rotation(NO_SPEED);
-			}
-
-			if (figure_get()== FIGURE_TRIANGLE)
-			{
-				// rotate to orient robot
-				displacement_angle_reset();
-				displacement_rotation(NORMAL_ROT_SPEED);
-				while (displacement_rotation_angle_check(ANGLE_TRIANGLE_DEGREES))
-					chThdSleepMilliseconds(PERIOD_MODE_3);
-				displacement_rotation(NO_SPEED);
-				for (i=0; i<2; i++)
-				{
-					displacement_distance_reset();
-					displacement_straight_speed_set(NORMAL_SPEED);
-					while (displacement_straight_distance_check(figure_side_get()))
-						chThdSleepMilliseconds(PERIOD_MODE_3);
-					displacement_straight_speed_set(NO_SPEED);
-					displacement_angle_reset();
-					displacement_rotation(NORMAL_ROT_SPEED);
-					while (displacement_rotation_angle_check(ANGLE_120_DEGREES))
-						chThdSleepMilliseconds(PERIOD_MODE_3);
-					displacement_rotation(NO_SPEED);
-				}
 				displacement_distance_reset();
 				displacement_straight_speed_set(NORMAL_SPEED);
 				while (displacement_straight_distance_check(figure_side_get()))
 					chThdSleepMilliseconds(PERIOD_MODE_3);
 				displacement_straight_speed_set(NO_SPEED);
-				//rotate to re-orient the robot in order to go back to center
 				displacement_angle_reset();
 				displacement_rotation(NORMAL_ROT_SPEED);
-				while (displacement_rotation_angle_check(ANGLE_TRIANGLE_DEGREES))
+				while (displacement_rotation_angle_check(ANGLE_90_DEGREES))
 					chThdSleepMilliseconds(PERIOD_MODE_3);
 				displacement_rotation(NO_SPEED);
 			}
-
-
-			//return from starting point to center
 			displacement_distance_reset();
 			displacement_straight_speed_set(NORMAL_SPEED);
-			while (displacement_straight_distance_check(figure_size_get()))
+			while (displacement_straight_distance_check(figure_side_get()))
 				chThdSleepMilliseconds(PERIOD_MODE_3);
 			displacement_straight_speed_set(NO_SPEED);
-
-			mode_update();
+			//rotate to re-orient the robot in order to go back to center
+			displacement_angle_reset();
+			displacement_rotation(NORMAL_ROT_SPEED);
+			while (displacement_rotation_angle_check(ANGLE_SQUARE_DEGREES))
+				chThdSleepMilliseconds(PERIOD_MODE_3);
+			displacement_rotation(NO_SPEED);
 		}
+
+		if (figure_get()== FIGURE_TRIANGLE)
+		{
+			// rotate to orient robot
+			displacement_angle_reset();
+			displacement_rotation(NORMAL_ROT_SPEED);
+			while (displacement_rotation_angle_check(ANGLE_TRIANGLE_DEGREES))
+				chThdSleepMilliseconds(PERIOD_MODE_3);
+			displacement_rotation(NO_SPEED);
+			for (i=0; i<2; i++)
+			{
+				displacement_distance_reset();
+				displacement_straight_speed_set(NORMAL_SPEED);
+				while (displacement_straight_distance_check(figure_side_get()))
+					chThdSleepMilliseconds(PERIOD_MODE_3);
+				displacement_straight_speed_set(NO_SPEED);
+				displacement_angle_reset();
+				displacement_rotation(NORMAL_ROT_SPEED);
+				while (displacement_rotation_angle_check(ANGLE_120_DEGREES))
+					chThdSleepMilliseconds(PERIOD_MODE_3);
+				displacement_rotation(NO_SPEED);
+			}
+			displacement_distance_reset();
+			displacement_straight_speed_set(NORMAL_SPEED);
+			while (displacement_straight_distance_check(figure_side_get()))
+				chThdSleepMilliseconds(PERIOD_MODE_3);
+			displacement_straight_speed_set(NO_SPEED);
+			//rotate to re-orient the robot in order to go back to center
+			displacement_angle_reset();
+			displacement_rotation(NORMAL_ROT_SPEED);
+			while (displacement_rotation_angle_check(ANGLE_TRIANGLE_DEGREES))
+				chThdSleepMilliseconds(PERIOD_MODE_3);
+			displacement_rotation(NO_SPEED);
+		}
+
+
+		//return from starting point to center
+		displacement_distance_reset();
+		displacement_straight_speed_set(NORMAL_SPEED);
+		while (displacement_straight_distance_check(figure_size_get()))
+			chThdSleepMilliseconds(PERIOD_MODE_3);
+		displacement_straight_speed_set(NO_SPEED);
+
+		mode_update();
 	}
 }
 
-void sequence_sequthd_init(void){
-	(void)chThdCreateStatic(waSEQUENCE, sizeof(waSEQUENCE),
-	    SEQU_THD_PRIO, SEQThd, NULL);
+
+void sequence_initial_reset(void){
+	figure_size_set(FIGURE_NO_SIZE);
+	max_norm_buff_reset();
+	figure_set(FIGURE_NONE);
+	return;
 }
