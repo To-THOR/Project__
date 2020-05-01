@@ -15,9 +15,7 @@
 #include <displacement.h>
 
 
-#define THREAD_SEQ_SIZE 256
 #define NB_MEASUREMENTS  29
-#define SEQU_THD_PRIO 	NORMALPRIO+3
 #define PERIOD_MODE_1	100
 #define PERIOD_MODE_2	200 		//to be modified according to the motors speed
 #define PERIOD_MODE_3	100

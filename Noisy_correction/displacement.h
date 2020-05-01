@@ -2,13 +2,13 @@
 #define DISPLACEMENT_H_
 
 #define NO_SPEED					0
-#define NORMAL_SPEED				900 					//CAUTION: speed must have zero dozens and units (e.g. 100, 200, ...)
+#define NORMAL_SPEED				MOTOR_SPEED_LIMIT
 #define NORMAL_ROT_SPEED 			400
-#define ANGLE_120_DEGREES			120						// angle = 120�
-#define ANGLE_90_DEGREES			90						// angle = 90�
-#define ANGLE_SQUARE_DEGREES		135						// angle = 135�
-#define ANGLE_TRIANGLE_DEGREES		150						// angle = 150�
-#define ANGLE_360_DEGREES			360						// angle = 360�
+#define ANGLE_120_DEGREES			120						// angle = 120 	deg
+#define ANGLE_90_DEGREES			90						// angle = 90 	deg
+#define ANGLE_SQUARE_DEGREES		135						// angle = 135 	deg
+#define ANGLE_TRIANGLE_DEGREES		150						// angle = 150 	deg
+#define ANGLE_360_DEGREES			360						// angle = 360 	deg
 #define ANGLE_REACHED				(uint8_t)(0)
 #define ANGLE_NOT_REACHED			(uint8_t)(1)
 #define DISTANCE_REACHED			(uint8_t)(0)
