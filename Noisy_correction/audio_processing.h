@@ -1,8 +1,11 @@
 #ifndef AUDIO_PROCESSING_H
 #define AUDIO_PROCESSING_H
 
+// --------------------------- CONSTANTS ---------------------------
 
 #define FFT_SIZE 	1024
+
+// --------------------------- STRUCTURES AND ENUMS ---------------------------
 
 typedef enum {
 	//2 times FFT_SIZE because these arrays contain complex numbers (real + imaginary)
@@ -17,6 +20,7 @@ typedef enum {
 	BACK_OUTPUT
 } BUFFER_NAME_t;
 
+// --------------------------- FUNCTIONS ---------------------------
 
 void processAudioData(int16_t *data, uint16_t num_samples);
 
@@ -30,6 +34,13 @@ void processAudioData(int16_t *data, uint16_t num_samples);
 */
 float* get_audio_buffer_ptr(BUFFER_NAME_t name);
 
+/*
+ * Name: 		-max_norm_buff_reset
+ * Description:	-resets the values of max_norm_table
+ * Arguments:	-void
+ * Return:		-void
+ *
+ * */
 void max_norm_buff_reset(void);
 
 #endif /* AUDIO_PROCESSING_H */

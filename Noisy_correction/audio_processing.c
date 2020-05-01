@@ -1,21 +1,39 @@
 #include "ch.h"
 #include "hal.h"
 #include <main.h>
-#include <usbcfg.h>
-#include <chprintf.h>
 
-#include <motors.h>
 #include <mode.h>
 #include <audio/microphone.h>
 #include <audio_processing.h>
 #include <fft.h>
 #include <arm_math.h>
 #include <figure.h>
-#include <mode.h>
 
+// --------------------------- CONSTANTS ---------------------------
 
-//semaphore
-//static BSEMAPHORE_DECL(sendToComputer_sem, TRUE);
+#define NORM_TABLE_SIZE				((int)(17))
+#define INITIAL_TABLE_COUNTER_VALUE ((uint8_t)(0))
+
+#define SOUND_DETECTED			1
+#define SOUND_NOT_DETECTED		0
+#define CHECK_SENSIBILITY		NORM_TABLE_SIZE - MAX_UNCORRECT_SAMPLES
+#define	MAX_UNCORRECT_SAMPLES	5
+#define ERROR_FREQ				1
+#define INITIAL_COUNTER_VALUE	0
+#define	NORM_RESET_VALUE		0
+
+#define MIN_VALUE_THRESHOLD		10000
+
+#define MIN_FREQ		10	//we don't analyze before this index to not use resources for nothing
+#define FREQ_SQUARE		16	//250Hz
+#define FREQ_TRIANGLE	19	//296Hz
+#define FREQ_CIRCLE		23	//359HZ
+#define FREQ_SIZE_1		26	//406Hz
+#define	FREQ_SIZE_2		29	//453Hz
+#define FREQ_SIZE_MAX	32	//500Hz
+#define MAX_FREQ		35	//we don't analyze after this index to not use resources for nothing
+
+// --------------------------- VARIABLES ---------------------------
 
 //2 times FFT_SIZE because these arrays contain complex numbers (real + imaginary)
 static float micLeft_cmplx_input[2 * FFT_SIZE];
@@ -28,33 +46,15 @@ static float micRight_output[FFT_SIZE];
 static float micFront_output[FFT_SIZE];
 static float micBack_output[FFT_SIZE];
 
-
-#define NORM_TABLE_SIZE	((int)(17))
-#define INITIAL_TABLE_COUNTER_VALUE ((uint8_t)(0))
-#define	DEFAULT_MEAN	((uint8_t)(0))
-
-#define SOUND_DETECTED			1
-#define SOUND_NOT_DETECTED		0
-#define CHECK_SENSIBILITY		NORM_TABLE_SIZE - MAX_UNCORRECT_SAMPLES
-#define	MAX_UNCORRECT_SAMPLES	5
-#define ERROR_FREQ				1
-#define INITIAL_COUNTER_VALUE	0
-#define	NORM_RESET_VALUE		0
-
-#define MIN_VALUE_THRESHOLD	10000 
-
-#define MIN_FREQ		10	//we don't analyze before this index to not use resources for nothing
-#define FREQ_SQUARE		16	//250Hz
-#define FREQ_TRIANGLE	19	//296Hz
-#define FREQ_CIRCLE		23	//359HZ
-#define FREQ_SIZE_1		26	//406Hz
-#define	FREQ_SIZE_2		29	//453Hz
-#define FREQ_SIZE_MAX	32	//500Hz
-#define MAX_FREQ		35	//we don't analyze after this index to not use resources for nothing
-
-
+/*
+ * Name: 		-max_norm_table
+ * Description:	-table containing the maximum frequency indices for a few samples over time
+ *
+ * */
 static uint16_t max_norm_table[NORM_TABLE_SIZE] = {0};
 
+
+// --------------------------- FUNCTIONS ---------------------------
 
 //uint8_t max_norm_mean(void);
 void max_norm_buff_update(uint8_t max_norm_new_index);
@@ -62,8 +62,8 @@ uint8_t max_norm_check(uint8_t frequence);
 
 
 /*
-*	Simple function used to detect the highest value in a buffer
-*	and to execute a motor command depending on it
+*	Simple function used to detect the highest value in a buffer over a period of time
+*	and to draw the corresponding function
 */
 void sound_remote(float* data){
 	float max_norm = MIN_VALUE_THRESHOLD;
@@ -79,24 +79,6 @@ void sound_remote(float* data){
 	}
 
 	max_norm_buff_update(max_norm_index);
-	//mean = max_norm_mean();
-
-/*	//draw a square
-	if(mean >= FREQ_FORWARD_L && mean <= FREQ_FORWARD_H){
-		figure_size_set(FIGURE_SIZE_1);
-		figure_set(FIGURE_SQUARE);
-	}
-	//draw a triangle
-	else if(mean >= FREQ_LEFT_L && mean <= FREQ_LEFT_H){
-		figure_size_set(FIGURE_SIZE_1);
-		figure_set(FIGURE_TRIANGLE);
-	}
-	//draw a circle
-	else if(mean >= FREQ_RIGHT_L && mean <= FREQ_RIGHT_H){
-		figure_size_set(FIGURE_SIZE_1);
-		figure_set(FIGURE_CIRCLE);
-	}
-*/
 
 	//draw a square
 	if(max_norm_check(FREQ_SQUARE)){
@@ -243,6 +225,13 @@ float* get_audio_buffer_ptr(BUFFER_NAME_t name){
 	}
 }
 
+/*
+ * Name: 		-max_norm_buff_update
+ * Description:	-updates the table of maximum frequency indices following a FIFO algorithm
+ * Arguments:	-uint8_t max_norm_new_index: new index that has to be added in the table
+ * Return:		-void
+ *
+ * */
 void max_norm_buff_update(uint8_t max_norm_new_index){
 	static uint8_t table_counter = INITIAL_TABLE_COUNTER_VALUE;
 
@@ -250,24 +239,29 @@ void max_norm_buff_update(uint8_t max_norm_new_index){
 	if(++table_counter == NORM_TABLE_SIZE) table_counter = INITIAL_TABLE_COUNTER_VALUE;
 }
 
-/*uint8_t max_norm_mean(void){
-	uint8_t mean = DEFAULT_MEAN;
-	for(int i = 0; i < NORM_TABLE_SIZE; i++){
-		mean += max_norm_table[i];
-	}
-	mean /= NORM_TABLE_SIZE;
-	return mean;
-}*/
-
-uint8_t max_norm_check(uint8_t frequence){
+/*
+ * Name: 		-max_norm_check
+ * Description:	-checks if a sound is mostly notified
+ * Arguments:	-uint8_t frequency: the frequency of the sound checked
+ * Return:		-if a sound is detected or not (bool)
+ *
+ * */
+uint8_t max_norm_check(uint8_t frequency){
 	uint8_t counter = INITIAL_COUNTER_VALUE;
 	for(int i = 0; i < NORM_TABLE_SIZE; i++){
-		if(max_norm_table[i] >= (frequence - ERROR_FREQ) && max_norm_table[i] <= (frequence + ERROR_FREQ) ) counter++;
+		if(max_norm_table[i] >= (frequency - ERROR_FREQ) && max_norm_table[i] <= (frequency + ERROR_FREQ) ) counter++;
 	}
 	if(counter >= CHECK_SENSIBILITY) return SOUND_DETECTED;
 	else return SOUND_NOT_DETECTED;
 }
 
+/*
+ * Name: 		-max_norm_buff_reset
+ * Description:	-resets the values of max_norm_table
+ * Arguments:	-void
+ * Return:		-void
+ *
+ * */
 void max_norm_buff_reset(void){
 	for(int i = 0;i<NORM_TABLE_SIZE;i++){
 		max_norm_table[i] = NORM_RESET_VALUE;

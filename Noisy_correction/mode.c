@@ -1,3 +1,9 @@
+// --------------------------- DESCRIPTION ---------------------------
+//figure.c
+//file responsible for the mode implementation, using static variables
+
+// --------------------------- INCLUDES ---------------------------
+
 #include "ch.h"
 #include "hal.h"
 #include <main.h>
@@ -7,15 +13,6 @@
 
 #define NO_ERROR	0
 #define ERROR		1
-
-// --------------------------- SEMAPHORE ---------------------------
-
-/*
- * Name: 		-wait_update_sem
- * Description:	-corresponds to a change of mode
- *
- * */
-static BSEMAPHORE_DECL(wait_update_sem, FALSE);
 
 // --------------------------- VARIABLES ---------------------------
 
@@ -90,26 +87,4 @@ void mode_raise_error(void){
  * */
 int mode_get(void){
 	return static_mode;
-}
-
-/*
- * Name: 		-mode_wait
- * Description:	-waits for the semaphore wait-update_sem, which corresponds to a change of mode
- * Arguments:	-void
- * Return:		-void
- *
- * */
-void mode_wait(void){
-	chBSemWait(&wait_update_sem);
-}
-
-/*
- * Name: 		-mode_signal
- * Description:	-frees the semaphore wait-update_sem, which corresponds to a change of mode
- * Arguments:	-void
- * Return:		-void
- *
- * */
-void mode_signal(void){
-	chBSemSignal(&wait_update_sem);
 }

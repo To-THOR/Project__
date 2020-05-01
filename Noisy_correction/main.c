@@ -1,3 +1,9 @@
+// --------------------------- DESCRIPTION ---------------------------
+//main.c
+//main file
+
+// --------------------------- INCLUDES ---------------------------
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,22 +11,26 @@
 #include "ch.h"
 #include "hal.h"
 #include "memory_protection.h"
-#include <usbcfg.h>
 #include <main.h>
-#include <chprintf.h>
 #include <audio/microphone.h>
 #include <audio_processing.h>
-#include <fft.h>
-#include <arm_math.h>
-#include <mode.h>
-#include <figure.h>
 #include <displacement.h>
 #include <sensors/VL53L0X/VL53L0X.h>
 #include <sequence.h>
 
+// --------------------------- CONSTANTS ---------------------------
 
-#define PERIOD_MAIN	1000
+#define PERIOD_MAIN	1000	// [ms]
 
+// --------------------------- FUNCTIONS ---------------------------
+
+/*
+ * Name: 		-main
+ * Description:	-main function
+ * Arguments:	-void
+ * Return:		-int
+ *
+ * */
 int main(void)
 {
 

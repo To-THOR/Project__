@@ -1,3 +1,9 @@
+// --------------------------- DESCRIPTION ---------------------------
+//figure.c
+//file responsible for the geometric shape and size implementation, using static variables
+
+// --------------------------- INCLUDES ---------------------------
+
 #include "ch.h"
 #include "hal.h"
 #include <main.h>
@@ -64,6 +70,13 @@ int16_t figure_size_get(void){
 	return figure_size_static;
 }
 
+/*
+ * Name: 		-figure_side_get
+ * Description:	-Returns the value of the side of the geometric shape currently drawn
+ * Arguments:	-void
+ * Return:		-side of the shape
+ *
+ * */
 int16_t figure_side_get(void){
 	switch(figure_static){
 	case FIGURE_NONE:

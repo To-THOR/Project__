@@ -1,3 +1,7 @@
+// --------------------------- DESCRIPTION ---------------------------
+//figure.h
+//file responsible for the mode implementation, using static variables
+
 #ifndef MODE_H_
 #define MODE_H_
 
@@ -9,10 +13,31 @@
 
 // --------------------------- FUNCTIONS ---------------------------
 
+/*
+ * Name: 		-mode_update
+ * Description:	-updates the mode static variable to the next state
+ * Arguments:	-void
+ * Return:		-void
+ *
+ * */
 void mode_update(void);
+
+/*
+ * Name: 		-mode_raise_error
+ * Description:	-indicates that there is an obstacle (by changing static_error)
+ * Arguments:	-void
+ * Return:		-void
+ *
+ * */
 void mode_raise_error(void);
+
+/*
+ * Name: 		-mode_get
+ * Description:	-Returns the value of static_mode
+ * Arguments:	-void
+ * Return:		-static_mode
+ *
+ * */
 int mode_get(void);
-void mode_wait(void);
-void mode_signal(void);
 
 #endif /* MODE_H_ */

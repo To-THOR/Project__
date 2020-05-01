@@ -1,10 +1,13 @@
+// --------------------------- DESCRIPTION ---------------------------
+//displacement.c
+//file responsible for the distance and speed processing
+
+// --------------------------- INCLUDES ---------------------------
+
 #include "ch.h"
 #include "hal.h"
 #include <main.h>
-#include <mode.h>
-#include <motors.h>
 #include <displacement.h>
-#include <figure.h>
 
 
 // --------------------------- CONSTANTS ---------------------------
@@ -12,45 +15,53 @@
 #define RESET_LEFT_POS_MOTOR			((int32_t)(0))
 #define RESET_RIGHT_POS_MOTOR			((int32_t)(0))
 #define PI								((float)(3.14159))
-#define STEPS_PER_REVOLUTION			1000
-#define WHEEL_PERIMETER					130 								//[mm]
-#define	WHEEL_GAP						53									//[mm] distance between wheels
+
+//Parameters of the robot
+#define STEPS_PER_REVOLUTION			1000					//[step]
+#define WHEEL_PERIMETER					130 					//[mm]
+#define	WHEEL_GAP						53						//distance between wheels [mm]
+
+//Factors
 #define	MM_TO_STEP_FACTOR				((float)STEPS_PER_REVOLUTION/(float)WHEEL_PERIMETER)
 #define DEGREES_TO_STEP_FACTOR			((float)((STEPS_PER_REVOLUTION*WHEEL_GAP*2*PI)/(360*WHEEL_PERIMETER)))
-#define DISTANCE_1_STEP					((uint16_t)(FIGURE_SIZE_1*MM_TO_STEP_FACTOR))
-#define DISTANCE_2_STEP					((uint16_t)(FIGURE_SIZE_2*MM_TO_STEP_FACTOR))
-#define DISTANCE_MAX_STEP				((uint16_t)(FIGURE_SIZE_MAX*MM_TO_STEP_FACTOR))
-#define DISTANCE_SQUARE_SIDE_1_STEP		((uint16_t)(SQUARE_SIDE_1*MM_TO_STEP_FACTOR))
-#define DISTANCE_SQUARE_SIDE_2_STEP		((uint16_t)(SQUARE_SIDE_2*MM_TO_STEP_FACTOR))
-#define DISTANCE_SQUARE_SIDE_MAX_STEP	((uint16_t)(SQUARE_SIDE_MAX*MM_TO_STEP_FACTOR))
-#define DISTANCE_TRIANGLE_SIDE_1_STEP	((uint16_t)(TRIANGLE_SIDE_1*MM_TO_STEP_FACTOR))
-#define DISTANCE_TRIANGLE_SIDE_2_STEP	((uint16_t)(TRIANGLE_SIDE_2*MM_TO_STEP_FACTOR))
-#define DISTANCE_TRIANGLE_SIDE_MAX_STEP	((uint16_t)(TRIANGLE_SIDE_MAX*MM_TO_STEP_FACTOR))
+#define	CIRCLE_SPEED_FACTOR_1			((float)(1+((float)(2*WHEEL_GAP))/((float)(2*FIGURE_SIZE_1-WHEEL_GAP))))
+#define	CIRCLE_SPEED_FACTOR_2			((float)(1+((float)(2*WHEEL_GAP))/((float)(2*FIGURE_SIZE_2-WHEEL_GAP))))
+#define	CIRCLE_SPEED_FACTOR_MAX			((float)(1+((float)(2*WHEEL_GAP))/((float)(2*FIGURE_SIZE_MAX-WHEEL_GAP))))
+
+//Distance and speed constant table
+#define DISTANCE_1_STEP					((uint16_t)(((float)FIGURE_SIZE_1)*MM_TO_STEP_FACTOR))
+#define DISTANCE_2_STEP					((uint16_t)(((float)FIGURE_SIZE_2)*MM_TO_STEP_FACTOR))
+#define DISTANCE_MAX_STEP				((uint16_t)(((float)FIGURE_SIZE_MAX)*MM_TO_STEP_FACTOR))
+#define DISTANCE_SQUARE_SIDE_1_STEP		((uint16_t)(((float)SQUARE_SIDE_1)*MM_TO_STEP_FACTOR))
+#define DISTANCE_SQUARE_SIDE_2_STEP		((uint16_t)(((float)SQUARE_SIDE_2)*MM_TO_STEP_FACTOR))
+#define DISTANCE_SQUARE_SIDE_MAX_STEP	((uint16_t)(((float)SQUARE_SIDE_MAX)*MM_TO_STEP_FACTOR))
+#define DISTANCE_TRIANGLE_SIDE_1_STEP	((uint16_t)(((float)TRIANGLE_SIDE_1)*MM_TO_STEP_FACTOR))
+#define DISTANCE_TRIANGLE_SIDE_2_STEP	((uint16_t)(((float)TRIANGLE_SIDE_2)*MM_TO_STEP_FACTOR))
+#define DISTANCE_TRIANGLE_SIDE_MAX_STEP	((uint16_t)(((float)TRIANGLE_SIDE_MAX)*MM_TO_STEP_FACTOR))
 #define CIRCLE_SPEED_LEFT_1				((float)((float)(MOTOR_SPEED_LIMIT)*((float)(2*FIGURE_SIZE_1-WHEEL_GAP)) \
 		/((float)(2*FIGURE_SIZE_1+WHEEL_GAP))))
 #define CIRCLE_SPEED_LEFT_2				((float)((float)(MOTOR_SPEED_LIMIT)*((float)(2*FIGURE_SIZE_2-WHEEL_GAP)) \
 		/((float)(2*FIGURE_SIZE_2+WHEEL_GAP))))
 #define CIRCLE_SPEED_LEFT_MAX				((float)((float)(MOTOR_SPEED_LIMIT)*((float)(2*FIGURE_SIZE_MAX-WHEEL_GAP)) \
 		/((float)(2*FIGURE_SIZE_MAX+WHEEL_GAP))))
-#define	CIRCLE_SPEED_FACTOR_1			((float)(1+((float)(2*WHEEL_GAP))/((float)(2*FIGURE_SIZE_1-WHEEL_GAP))))
-#define	CIRCLE_SPEED_FACTOR_2			((float)(1+((float)(2*WHEEL_GAP))/((float)(2*FIGURE_SIZE_2-WHEEL_GAP))))
-#define	CIRCLE_SPEED_FACTOR_MAX			((float)(1+((float)(2*WHEEL_GAP))/((float)(2*FIGURE_SIZE_MAX-WHEEL_GAP))))
 #define	CIRCLE_SPEED_RIGHT_1			((uint32_t)(((float)(CIRCLE_SPEED_LEFT_1))*CIRCLE_SPEED_FACTOR_1))
 #define	CIRCLE_SPEED_RIGHT_2			((uint32_t)(((float)(CIRCLE_SPEED_LEFT_2))*CIRCLE_SPEED_FACTOR_2))
 #define	CIRCLE_SPEED_RIGHT_MAX			((uint32_t)(((float)(CIRCLE_SPEED_LEFT_MAX))*CIRCLE_SPEED_FACTOR_MAX))
-#define STEP_EQUALITY_ERROR				((uint16_t)(5))
-#define	ANGLE_90_STEP					((uint16_t)(DEGREES_TO_STEP_FACTOR*ANGLE_90_DEGREES))
-#define	ANGLE_120_STEP					((uint16_t)(DEGREES_TO_STEP_FACTOR*ANGLE_120_DEGREES))
-#define	ANGLE_360_STEP					((uint16_t)(DEGREES_TO_STEP_FACTOR*ANGLE_360_DEGREES))
-#define	ANGLE_SQUARE_STEP				((uint16_t)(DEGREES_TO_STEP_FACTOR*ANGLE_SQUARE_DEGREES))
-#define	ANGLE_TRIANGLE_STEP				((uint16_t)(DEGREES_TO_STEP_FACTOR*ANGLE_TRIANGLE_DEGREES))
+#define	ANGLE_90_STEP					((uint16_t)(DEGREES_TO_STEP_FACTOR*((float)(ANGLE_90_DEGREES))))
+#define	ANGLE_120_STEP					((uint16_t)(DEGREES_TO_STEP_FACTOR*((float)(ANGLE_120_DEGREES))))
+#define	ANGLE_360_STEP					((uint16_t)(DEGREES_TO_STEP_FACTOR*((float)(ANGLE_360_DEGREES))))
+#define	ANGLE_SQUARE_STEP				((uint16_t)(DEGREES_TO_STEP_FACTOR*((float)(ANGLE_SQUARE_DEGREES))))
+#define	ANGLE_TRIANGLE_STEP				((uint16_t)(DEGREES_TO_STEP_FACTOR*((float)(ANGLE_TRIANGLE_DEGREES))))
+
+//Resolution for the angle check
+#define STEP_EQUALITY_ERROR				((uint16_t)(50))
 
 
 // --------------------------- EXTERNAL FUNCTIONS ---------------------------
 
 /*
  * Name: 		-displacement_start
- * Description:	-initializes the threads (motors and distance processing)
+ * Description:	-initializes the threads related to displacement
  * Arguments:	-void
  * Return:		-void
  *
@@ -61,17 +72,16 @@ void displacement_start(void){
 
 
 /*
- * Name: 		-distance_update
- * Description:	-updates the distance done by the robot according to the wheels velocities
- * 				-CAUTION: distance resolution: 19step/1000 * perimeter = 2.4 [mm]
- * 				-CAUTION: maximum distance is 2^16[step] = 8.5 [m]
- * Arguments:	-void
- * Return:		-void
+ * Name: 		-displacement_straight_distance_check
+ * Description:	-checks if the distance given in parameters has been reached or excelled
+ * 				-CAUTION: maximum distance is 2^16[step] = 8.5 [m] due to the motor structure implementation in motors.h
+ * Arguments:	-int16_t distance_mm: distance that has to be checked [mm]
+ * Return:		-boolean (CAUTION: 1 if not reached, 0 if reached)
  *
  * */
 uint8_t displacement_straight_distance_check(int16_t distance_mm){
-	if(right_motor_get_pos() >= left_motor_get_pos() - STEP_EQUALITY_ERROR &&
-			right_motor_get_pos() <= left_motor_get_pos() + STEP_EQUALITY_ERROR){
+	if(right_motor_get_pos() >= left_motor_get_pos() - STEP_EQUALITY_ERROR &&		//initial check that the trajectory is
+			right_motor_get_pos() <= left_motor_get_pos() + STEP_EQUALITY_ERROR){	//straight and not circular
 		switch(distance_mm){
 		case FIGURE_SIZE_1:
 			if(right_motor_get_pos() >= DISTANCE_1_STEP) return DISTANCE_REACHED;
@@ -116,7 +126,13 @@ uint8_t displacement_straight_distance_check(int16_t distance_mm){
 	else return(DISTANCE_NOT_REACHED);
 }
 
-
+/*
+ * Name: 		-displacement_rotation_angle_check
+ * Description:	-checks if the angle given in parameters has been reached or excelled
+ * Arguments:	-int16_t angle_degrees: angle that has to be checked [deg]
+ * Return:		-boolean (CAUTION: 1 if not reached, 0 if reached)
+ *
+ * */
 uint8_t displacement_rotation_angle_check(int16_t angle_degrees){
 	switch(angle_degrees){
 	case ANGLE_120_DEGREES:
@@ -145,19 +161,39 @@ uint8_t displacement_rotation_angle_check(int16_t angle_degrees){
 	}
 }
 
-
+/*
+ * Name: 		-displacement_distance_reset
+ * Description:	-resets the static variable containing the distance of the
+ * 				wheels (and hence the angle of the robot) to 0
+ * Arguments:	-void
+ * Return:		-void
+ *
+ * */
 void displacement_distance_reset(void){
 	left_motor_set_pos(RESET_LEFT_POS_MOTOR);
 	right_motor_set_pos(RESET_RIGHT_POS_MOTOR);
 }
 
-
+/*
+ * Name: 		-displacement_angle_reset
+ * Description:	-resets the static variable containing the distance of the
+ * 				wheels to 0
+ * Arguments:	-void
+ * Return:		-void
+ *
+ * */
 void displacement_angle_reset(void){
 	left_motor_set_pos(RESET_LEFT_POS_MOTOR);
 	right_motor_set_pos(RESET_RIGHT_POS_MOTOR);
 }
 
-
+/*
+ * Name: 		-displacement_rotation
+ * Description:	-sets the wheels' speeds in order to obtain a rotation
+ * Arguments:	-int32_t speed: the speed of the wheels for rotation [step]
+ * Return:		-void
+ *
+ * */
 void displacement_rotation(int32_t speed)
 {
 	if(speed == NORMAL_ROT_SPEED){
@@ -170,7 +206,13 @@ void displacement_rotation(int32_t speed)
 	}
 }
 
-
+/*
+ * Name: 		-displacement_straight_speed_set
+ * Description:	-sets the wheels' speeds in order to obtain a straight trajectory
+ * Arguments:	-int32_t speed: the speed of the wheels [step]
+ * Return:		-void
+ *
+ * */
 void displacement_straight_speed_set(int32_t speed){
 	if(speed == NORMAL_SPEED){
 		left_motor_set_speed(NORMAL_SPEED);
@@ -182,7 +224,13 @@ void displacement_straight_speed_set(int32_t speed){
 	}
 }
 
-
+/*
+ * Name: 		-displacement_circle_speed
+ * Description:	-sets the wheels' speeds in order to obtain a circular trajectory with maximum speed
+ * Arguments:	-void
+ * Return:		-void
+ *
+ * */
 void displacement_circle_speed(void){
 	switch(figure_size_get()){
 	case FIGURE_NO_SIZE:{
