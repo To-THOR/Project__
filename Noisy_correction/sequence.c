@@ -18,7 +18,7 @@
 
 #define NB_MEASUREMENTS  29
 #define PERIOD_MODE_1	100	// [ms]
-#define PERIOD_MODE_2	200	// [ms]
+#define PERIOD_MODE_2	100	// [ms]
 #define PERIOD_MODE_3	100	// [ms]
 
 // --------------------------- FUNCTIONS ---------------------------
