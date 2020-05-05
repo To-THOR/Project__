@@ -166,6 +166,26 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 	}
 }
 
+<<<<<<< Updated upstream
+=======
+/*void wait_send_to_computer(void){
+	chBSemWait(&sendToComputer_sem);
+} */
+
+float* get_audio_buffer_ptr(BUFFER_NAME_t name){
+
+	if (name == FRONT_CMPLX_INPUT){
+		return micFront_cmplx_input;
+	}
+	else if (name == FRONT_OUTPUT){
+		return micFront_output;
+	}
+	else{
+		return NULL;
+	}
+}
+
+>>>>>>> Stashed changes
 /*
  * Name: 		-max_norm_buff_update
  * Description:	-updates the table of maximum frequency indices following a FIFO algorithm
