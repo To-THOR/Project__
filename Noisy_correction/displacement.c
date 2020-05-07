@@ -54,7 +54,7 @@
 #define	ANGLE_TRIANGLE_STEP				((uint16_t)(DEGREES_TO_STEP_FACTOR*((float)(ANGLE_TRIANGLE_DEGREES))))
 
 //Resolution for the angle check
-#define STEP_EQUALITY_ERROR				((uint16_t)(50))
+#define STEP_EQUALITY_ERROR				((uint16_t)(35))
 
 
 // --------------------------- EXTERNAL FUNCTIONS ---------------------------
